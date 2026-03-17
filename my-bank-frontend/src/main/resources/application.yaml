@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: my-bank-frontend
+
+server:
+  port: 80
