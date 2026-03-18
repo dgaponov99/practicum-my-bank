@@ -33,7 +33,7 @@ public class AccountsInitComponent {
     @EventListener(ApplicationReadyEvent.class)
     public void initAccounts() {
         var keycloakUrl = keycloakIssuerUri.split("/realms/")[0];
-        var realm = keycloakUrl.split("/realms/")[1];
+        var realm = keycloakIssuerUri.split("/realms/")[1];
 
         var users = serviceRestClient.get()
                 .uri(keycloakUrl + "/admin/realms/{realm}/users", realm)
