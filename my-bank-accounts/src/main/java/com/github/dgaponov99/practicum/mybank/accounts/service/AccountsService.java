@@ -1,5 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.accounts.service;
 
+import com.github.dgaponov99.practicum.mybank.accounts.event.EditAccountEvent;
 import com.github.dgaponov99.practicum.mybank.accounts.exception.AccountNotFoundException;
 import com.github.dgaponov99.practicum.mybank.accounts.exception.InsufficientFundsException;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.entity.Account;
@@ -8,6 +9,7 @@ import com.github.dgaponov99.practicum.mybank.accounts.web.dto.AccountDataDto;
 import com.github.dgaponov99.practicum.mybank.accounts.web.dto.AccountDto;
 import com.github.dgaponov99.practicum.mybank.accounts.web.dto.TransferDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ import java.util.List;
 public class AccountsService {
 
     private final AccountRepository accountRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional(readOnly = true)
     public List<AccountDto> getAllAccounts() {
@@ -36,6 +39,8 @@ public class AccountsService {
         var account = getAccount(username);
         account.setName(accountDataDto.name());
         account.setBirthDate(accountDataDto.birthDate());
+
+        publisher.publishEvent(new EditAccountEvent(username));
         accountRepository.save(account);
         return toAccountDto(account);
     }

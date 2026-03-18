@@ -13,6 +13,7 @@ import java.util.List;
 public class TransferService {
 
     private final AccountServiceClient accountServiceClient;
+    private final NotificationService notificationService;
 
     public List<TransferAccountDto> getTransferAccounts(String username) {
         return accountServiceClient.getAllAccounts().stream()
@@ -23,6 +24,8 @@ public class TransferService {
 
     public void transfer(TransferDto transferDto) {
         accountServiceClient.transfer(transferDto);
+        notificationService.sendNotification(transferDto.fromUsername(), "Успешно выполнен исходящий перевод на сумму %d руб.".formatted(transferDto.amount()));
+        notificationService.sendNotification(transferDto.toUsername(), "Успешно выполнен входящий перевод на сумму %d руб.".formatted(transferDto.amount()));
     }
 
 }
