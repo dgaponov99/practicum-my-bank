@@ -23,6 +23,7 @@
     <modules>
         <module>my-bank-frontend</module>
         <module>my-bank-gateway</module>
+        <module>my-bank-accounts</module>
     </modules>
 
     <dependencyManagement>
