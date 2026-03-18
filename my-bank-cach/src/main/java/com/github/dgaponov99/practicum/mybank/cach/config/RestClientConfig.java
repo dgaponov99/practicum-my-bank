@@ -1,8 +1,8 @@
-package com.github.dgaponov99.practicum.mybank.transfer.config;
+package com.github.dgaponov99.practicum.mybank.cach.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.dgaponov99.practicum.mybank.transfer.dto.ErrorDto;
-import com.github.dgaponov99.practicum.mybank.transfer.exception.ExternalMultipleException;
+import com.github.dgaponov99.practicum.mybank.cach.dto.ErrorDto;
+import com.github.dgaponov99.practicum.mybank.cach.exception.ExternalMultipleException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -64,7 +64,7 @@ public class RestClientConfig {
     private Consumer<HttpHeaders> addAccessTokenHeader(OAuth2AuthorizedClientManager authorizedClientManager) {
         return httpHeaders -> {
             var fakePrincipal = new UsernamePasswordAuthenticationToken("service", "N/A");
-            var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("transfer-service")
+            var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("cach-service")
                     .principal(fakePrincipal)
                     .build();
 

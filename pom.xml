@@ -25,6 +25,7 @@
         <module>my-bank-gateway</module>
         <module>my-bank-accounts</module>
         <module>my-bank-transfer</module>
+        <module>my-bank-cach</module>
     </modules>
 
     <dependencyManagement>

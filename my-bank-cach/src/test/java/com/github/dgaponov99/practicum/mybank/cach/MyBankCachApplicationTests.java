@@ -1,10 +1,10 @@
-package com.github.dgaponov99.practicum.mybank.transfer;
+package com.github.dgaponov99.practicum.mybank.cach;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MyBankTransferApplicationTests {
+class MyBankCachApplicationTests {
 
     @Test
     void contextLoads() {

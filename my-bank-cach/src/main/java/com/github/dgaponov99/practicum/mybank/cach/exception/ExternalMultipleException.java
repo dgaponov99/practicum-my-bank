@@ -1,4 +1,4 @@
-package com.github.dgaponov99.practicum.mybank.transfer.exception;
+package com.github.dgaponov99.practicum.mybank.cach.exception;
 
 import lombok.Getter;
 
