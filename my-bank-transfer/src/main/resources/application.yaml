@@ -1,0 +1,21 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: my-bank-transfer
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/my-bank-realm
+      client:
+        registration:
+          transfer-service:
+            client-id: transfer-service
+            client-secret: LuDDS3ADJyao2e1bBQK7jFEqZRujfCUj
+            authorization-grant-type: client_credentials
+            provider: keycloak
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/realms/my-bank-realm
