@@ -10,10 +10,11 @@
 </head>
 
 <body class="bg-light">
-<div class="alert alert-danger vstack" role="alert" th:if="${errors!=null}" th:each="error : ${errors}">
+<!--/*@thymesVar id="alert" type="com.github.dgaponov99.practicum.mybank.frontend.view.AlertView"*/-->
+<div class="alert alert-danger vstack" role="alert" th:if="${alert?.errors!=null}" th:each="error : ${alert.errors}">
     <span th:text="${error}"/>
 </div>
-<div class="alert alert-success" role="alert" th:if="${info!=null}" th:text="${info}"/>
+<div class="alert alert-success" role="alert" th:if="${alert?.info!=null}" th:text="${alert.info}"/>
 <div class="container p-2">
     <div class="row p-2">
         <div class="col">
@@ -38,7 +39,7 @@
                             </h6>
                             <p>
                                 <input type="text" class="form-control" id="name" name="name" placeholder="Иванов Иван"
-                                       th:value="${name}" required>
+                                       th:value="${account.name}" required>
                             </p>
                         </div>
                         <div class="form-group">
@@ -47,12 +48,12 @@
                             </h6>
                             <p>
                                 <input type="date" class="form-control" name="birthdate" id="birthdate"
-                                       th:value="${birthdate}" required>
+                                       th:value="${account.birthDate}" required>
                             </p>
                         </div>
                         <div class="form-group">
                             <h6>Сумма на счету, руб</h6>
-                            <p th:text="${sum}"/>
+                            <p th:text="${account.balance}"/>
                         </div>
                         <button type="submit" class="btn btn-secondary">Сохранить изменения</button>
                     </form>
@@ -98,8 +99,8 @@
                             </h6>
                             <p>
                                 <select class="form-select" id="to_account" name="login" required>
-                                    <option th:each="account : ${accounts}" th:value="${account.login}"
-                                            th:text="${account.name}"/>
+                                    <option th:each="transferAccount : ${transferAccounts}" th:value="${transferAccount.username}"
+                                            th:text="${transferAccount.name}"/>
                                 </select>
                             </p>
                         </div>

@@ -1,13 +1,14 @@
 package com.github.dgaponov99.practicum.mybank.frontend.controller;
 
-import com.github.dgaponov99.practicum.mybank.frontend.controller.dto.CashAction;
-import com.github.dgaponov99.practicum.mybank.frontend.controller.stub.AccountStub;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.github.dgaponov99.practicum.mybank.frontend.service.AccountService;
+import com.github.dgaponov99.practicum.mybank.frontend.view.AlertView;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
@@ -33,10 +34,10 @@ import java.time.LocalDate;
  * С примерами использования можно ознакомиться в тестовом классе заглушке AccountStub
  */
 @Controller
+@RequiredArgsConstructor
 public class MainController {
-    // TODO: Удалить заглушку, так как используется только для ознакомительных целей
-    @Autowired
-    private AccountStub accountStub;
+
+    private final AccountService accountService;
 
     /**
      * GET /.
@@ -56,8 +57,8 @@ public class MainController {
      */
     @GetMapping("/account")
     public String getAccount(Model model) {
-        // TODO: Заменить на то, что описано в комментарии к методу
-        accountStub.fillModel(model, null, null);
+        model.addAttribute("account", accountService.getAccountView());
+        model.addAttribute("transferAccounts", accountService.getTransferAccountViews());
 
         return "main";
     }
@@ -75,15 +76,13 @@ public class MainController {
      */
     @PostMapping("/account")
     public String editAccount(
-            Model model,
             @RequestParam("name") String name,
-            @RequestParam("birthdate") LocalDate birthdate
-    ) {
-        // TODO: Заменить на то, что описано в комментарии к методу
-        accountStub.setNameAndBirthdate(name, birthdate);
-        accountStub.fillModel(model, null, null);
+            @RequestParam("birthdate") LocalDate birthdate,
+            RedirectAttributes redirectAttributes) {
+        var alert = accountService.editAccount(name, birthdate);
 
-        return "main";
+        redirectAttributes.addFlashAttribute("alert", alert);
+        return "redirect:/account";
     }
 
     /**
@@ -99,14 +98,18 @@ public class MainController {
      */
     @PostMapping("/cash")
     public String editCash(
-            Model model,
             @RequestParam("value") int value,
-            @RequestParam("action") CashAction action
-    ) {
-        // TODO: Заменить на то, что описано в комментарии к методу
-        accountStub.editCash(model, value, action);
+            @RequestParam("action") CashAction action,
+            RedirectAttributes redirectAttributes) {
+        AlertView alert;
+        if (action == CashAction.PUT) {
+            alert = accountService.depositCash(value);
+        } else {
+            alert = accountService.withdrawCash(value);
+        }
 
-        return "main";
+        redirectAttributes.addFlashAttribute("alert", alert);
+        return "redirect:/account";
     }
 
     /**
@@ -118,17 +121,20 @@ public class MainController {
      * <p>
      * Параметры:
      * 1. value - сумма списания
-     * 2. login - логин пользователя получателя
+     * 2. username - логин пользователя получателя
      */
     @PostMapping("/transfer")
     public String transfer(
-            Model model,
             @RequestParam("value") int value,
-            @RequestParam("login") String login
-    ) {
-        // TODO: Заменить на то, что описано в комментарии к методу
-        accountStub.transfer(model, value, login);
+            @RequestParam("login") String login,
+            RedirectAttributes redirectAttributes) {
+        var alert = accountService.transfer(login, value);
 
-        return "main";
+        redirectAttributes.addFlashAttribute("alert", alert);
+        return "redirect:/account";
+    }
+
+    public enum CashAction {
+        PUT, GET
     }
 }

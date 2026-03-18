@@ -1,6 +1,20 @@
+server:
+  port: 80
+
 spring:
   application:
     name: my-bank-frontend
-
-server:
-  port: 80
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: frontend-service
+            client-secret: EHbXBaEgOonmmQPwAIncBFABtTnjwuA8
+            authorization-grant-type: authorization_code
+            scope: openid, profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            provider: keycloak
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/realms/my-bank-realm
