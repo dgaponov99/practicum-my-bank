@@ -25,7 +25,7 @@
         <module>my-bank-gateway</module>
         <module>my-bank-accounts</module>
         <module>my-bank-transfer</module>
-        <module>my-bank-cach</module>
+        <module>my-bank-cash</module>
         <module>my-bank-notifications</module>
     </modules>
 

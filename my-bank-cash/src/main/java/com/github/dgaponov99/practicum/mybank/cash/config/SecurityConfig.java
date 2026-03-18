@@ -1,4 +1,4 @@
-package com.github.dgaponov99.practicum.mybank.transfer.config;
+package com.github.dgaponov99.practicum.mybank.cash.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

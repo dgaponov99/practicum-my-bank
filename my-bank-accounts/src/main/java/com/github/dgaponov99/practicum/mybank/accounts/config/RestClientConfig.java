@@ -3,13 +3,11 @@ package com.github.dgaponov99.practicum.mybank.accounts.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.client.RestClient;
-
-import java.util.function.Consumer;
 
 @Configuration
 @RequiredArgsConstructor
@@ -48,19 +46,21 @@ public class RestClientConfig {
     public RestClient serviceRestClient(RestClient.Builder builder,
                                         OAuth2AuthorizedClientManager authorizedClientManager) {
         return builder
-                .defaultHeaders(addAccessTokenHeader(authorizedClientManager))
+                .requestInterceptor(addAccessTokenHeader(authorizedClientManager))
                 .build();
     }
 
-    private Consumer<HttpHeaders> addAccessTokenHeader(OAuth2AuthorizedClientManager authorizedClientManager) {
-        return httpHeaders -> {
+    private ClientHttpRequestInterceptor addAccessTokenHeader(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return (httpRequest, body, execution) -> {
             var fakePrincipal = new UsernamePasswordAuthenticationToken("service", "N/A");
             var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("accounts-service")
                     .principal(fakePrincipal)
                     .build();
 
             var client = authorizedClientManager.authorize(authorizeRequest);
-            httpHeaders.setBearerAuth(client.getAccessToken().getTokenValue());
+            httpRequest.getHeaders().setBearerAuth(client.getAccessToken().getTokenValue());
+
+            return execution.execute(httpRequest, body);
         };
     }
 

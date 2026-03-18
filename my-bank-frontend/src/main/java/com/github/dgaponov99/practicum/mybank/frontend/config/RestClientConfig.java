@@ -4,23 +4,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dgaponov99.practicum.mybank.frontend.client.dto.ErrorDto;
 import com.github.dgaponov99.practicum.mybank.frontend.exception.BusinessMultipleException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.client.RestClient;
 
-import java.util.function.Consumer;
+import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class RestClientConfig {
 
-    private final OAuth2AuthorizedClientService authorizedClientService;
+    private final OAuth2AuthorizedClientManager authorizedClientManager;
     private final ObjectMapper objectMapper;
 
     @Value("${gateway.service.url:http://localhost:8080}")
@@ -30,7 +33,7 @@ public class RestClientConfig {
     public RestClient getewayRestClient(RestClient.Builder builder) {
         return builder
                 .baseUrl(gatewayServiceUrl)
-                .defaultHeaders(addAccessTokenHeader())
+                .requestInterceptor(addAccessTokenHeader())
                 .defaultStatusHandler(HttpStatusCode::is4xxClientError, businessErrorHandler())
                 .build();
     }
@@ -41,34 +44,33 @@ public class RestClientConfig {
      * Извлекает Access Token из OAuth2AuthorizedClient и добавляет его в заголовок Authorization
      * Access Token содержит информацию о пользователе, ролях и правах, необходимую для Resource Server
      */
-    private Consumer<HttpHeaders> addAccessTokenHeader() {
-        return httpHeaders -> {
+    private ClientHttpRequestInterceptor addAccessTokenHeader() {
+        return (httpRequest, body, execution) -> {
             // Достаём текущую аутентификацию из SecurityContext
             var authentication = SecurityContextHolder.getContext().getAuthentication();
 
             // Проверяем, что пользователь залогинен через OAuth2 (OAuth2AuthenticationToken)
             if (authentication instanceof OAuth2AuthenticationToken oauth2Token) {
-                // Из токена берём clientRegistrationId (имя клиента в настройках security)
-                // и имя пользователя (principal), чтобы найти его authorized client
-                var authorizedClient = authorizedClientService.loadAuthorizedClient(
-                        oauth2Token.getAuthorizedClientRegistrationId(),
-                        oauth2Token.getName());
+                var authorizeRequest = OAuth2AuthorizeRequest
+                        .withClientRegistrationId(oauth2Token.getAuthorizedClientRegistrationId())
+                        .principal(authentication)
+                        .build();
 
-                // Если для этого пользователя и клиента нашли authorized client —
-                // пробуем достать из него access token (JWT)
-                var accessToken = authorizedClient != null ? authorizedClient.getAccessToken() : null;
+                var authorizedClient = authorizedClientManager.authorize(authorizeRequest);
 
-                // Если access token есть, добавляем его в заголовок Authorization
-                if (accessToken != null) {
-                    httpHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+                if (authorizedClient != null) {
+                    var accessToken = authorizedClient.getAccessToken();
+                    httpRequest.getHeaders().setBearerAuth(accessToken.getTokenValue());
                 }
             }
+            return execution.execute(httpRequest, body);
         };
     }
 
     private RestClient.ResponseSpec.ErrorHandler businessErrorHandler() {
         return (req, res) -> {
-            var errorDTO = objectMapper.readValue(res.getBody(), ErrorDto.class);
+            var body = new String(res.getBody().readAllBytes(), StandardCharsets.UTF_8);
+            var errorDTO = objectMapper.readValue(body, ErrorDto.class);
             throw new BusinessMultipleException(errorDTO.errors());
         };
     }

@@ -22,7 +22,7 @@ public class TransferController {
         return ResponseEntity.ok(transferService.getTransferAccounts(username));
     }
 
-    @PostMapping("/transfer")
+    @PostMapping
     @PreAuthorize("hasAuthority('transfer.write') and (!hasRole('USER') or #transferDto.fromUsername() == authentication.name)")
     public ResponseEntity<Void> transfer(@RequestBody TransferDto transferDto) {
         transferService.transfer(transferDto);

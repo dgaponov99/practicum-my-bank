@@ -37,6 +37,7 @@ public class SecurityConfig {
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(this::extractRealmRoles);
+        converter.setPrincipalClaimName("preferred_username");
         return converter;
     }
 

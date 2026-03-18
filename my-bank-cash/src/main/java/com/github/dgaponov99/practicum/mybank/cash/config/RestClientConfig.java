@@ -1,8 +1,8 @@
-package com.github.dgaponov99.practicum.mybank.transfer.config;
+package com.github.dgaponov99.practicum.mybank.cash.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.dgaponov99.practicum.mybank.transfer.dto.ErrorDto;
-import com.github.dgaponov99.practicum.mybank.transfer.exception.ExternalMultipleException;
+import com.github.dgaponov99.practicum.mybank.cash.dto.ErrorDto;
+import com.github.dgaponov99.practicum.mybank.cash.exception.ExternalMultipleException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -62,7 +62,7 @@ public class RestClientConfig {
     private ClientHttpRequestInterceptor addAccessTokenHeader(OAuth2AuthorizedClientManager authorizedClientManager) {
         return (httpRequest, body, execution) -> {
             var fakePrincipal = new UsernamePasswordAuthenticationToken("service", "N/A");
-            var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("transfer-service")
+            var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("cash-service")
                     .principal(fakePrincipal)
                     .build();
 
@@ -75,8 +75,8 @@ public class RestClientConfig {
 
     private RestClient.ResponseSpec.ErrorHandler externalErrorHandler() {
         return (req, res) -> {
-            try (var bodyIS = res.getBody()) {
-                var errorDto = objectMapper.readValue(bodyIS, ErrorDto.class);
+            try (var bodyIs = res.getBody()) {
+                var errorDto = objectMapper.readValue(bodyIs, ErrorDto.class);
                 throw new ExternalMultipleException(errorDto.errors());
             }
         };

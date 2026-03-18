@@ -1,0 +1,21 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: my-bank-cash
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/my-bank-realm
+      client:
+        registration:
+          cash-service:
+            client-id: cash-service
+            client-secret: LO9KIdXJZpqYMrSMZZz5VOdUVnnauorb
+            authorization-grant-type: client_credentials
+            provider: keycloak
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/realms/my-bank-realm

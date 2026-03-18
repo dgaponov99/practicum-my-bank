@@ -11,10 +11,10 @@
 
 <body class="bg-light">
 <!--/*@thymesVar id="alert" type="com.github.dgaponov99.practicum.mybank.frontend.view.AlertView"*/-->
-<div class="alert alert-danger vstack" role="alert" th:if="${alert?.errors!=null}" th:each="error : ${alert.errors}">
+<div class="alert alert-danger vstack" role="alert" th:if="${alert?.errors!=null}" th:each="error : ${alert?.errors}">
     <span th:text="${error}"/>
 </div>
-<div class="alert alert-success" role="alert" th:if="${alert?.info!=null}" th:text="${alert.info}"/>
+<div class="alert alert-success" role="alert" th:if="${alert?.info!=null}" th:text="${alert?.info}"/>
 <div class="container p-2">
     <div class="row p-2">
         <div class="col">
@@ -33,6 +33,7 @@
                 </div>
                 <div class="card-body gap-3">
                     <form method="post" action="/account">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <div class="form-group">
                             <h6>
                                 <label for="name">Фамилия Имя</label>
@@ -69,6 +70,7 @@
                 </div>
                 <div class="card-body gap-3">
                     <form method="post" action="/cash">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <div class="form-group">
                             <h6>
                                 <label for="cash_value">Сумма, руб.</label>
@@ -93,6 +95,7 @@
                 </div>
                 <div class="card-body gap-3">
                     <form method="post" action="/transfer">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <div class="form-group">
                             <h6>
                                 <label for="to_account">Кому</label>

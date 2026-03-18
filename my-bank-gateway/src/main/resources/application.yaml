@@ -27,16 +27,25 @@ spring:
               filters:
                 # Подключаем кастомный фильтр Token Relay
                 # Он берёт JWT и добавляет заголовок Authorization к исходящему запросу
-                - name: JwtTokenRelay
+                - JwtTokenRelay
+                - StripPrefix=1
             - id: accounts-service
               uri: http://localhost:8082
               predicates:
                 - Path=/accounts/**
               filters:
-                - name: JwtTokenRelay
-            - id: cach-service
+                - JwtTokenRelay
+                - StripPrefix=1
+            - id: cash-service
               uri: http://localhost:8083
               predicates:
-                - Path=/cach/**
+                - Path=/cash/**
               filters:
-                - name: JwtTokenRelay
+                - JwtTokenRelay
+                - StripPrefix=1
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.security: TRACE
+    reactor.netty.http.client: DEBUG

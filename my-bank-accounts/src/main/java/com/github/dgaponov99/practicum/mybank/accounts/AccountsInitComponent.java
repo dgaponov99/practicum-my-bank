@@ -22,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AccountsInitComponent {
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
 
     private final AccountRepository accountRepository;
     private final RestClient serviceRestClient;
