@@ -22,6 +22,7 @@
 
     <modules>
         <module>my-bank-frontend</module>
+        <module>my-bank-gateway</module>
     </modules>
 
     <dependencyManagement>
