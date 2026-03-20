@@ -1,6 +1,7 @@
 package com.github.dgaponov99.practicum.mybank.accounts.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -12,6 +13,9 @@ import org.springframework.web.client.RestClient;
 @Configuration
 @RequiredArgsConstructor
 public class RestClientConfig {
+
+    @Value("${spring.application.name}")
+    private String serviceName;
 
     /**
      * Настраиваем OAuth2AuthorizedClientManager —
@@ -50,10 +54,17 @@ public class RestClientConfig {
                 .build();
     }
 
+    @Bean
+    public RestClient keycloakRestClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return RestClient.builder()
+                .requestInterceptor(addAccessTokenHeader(authorizedClientManager))
+                .build();
+    }
+
     private ClientHttpRequestInterceptor addAccessTokenHeader(OAuth2AuthorizedClientManager authorizedClientManager) {
         return (httpRequest, body, execution) -> {
             var fakePrincipal = new UsernamePasswordAuthenticationToken("service", "N/A");
-            var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("accounts-service")
+            var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(serviceName)
                     .principal(fakePrincipal)
                     .build();
 

@@ -3,9 +3,15 @@ server:
 
 spring:
   application:
-    name: my-bank-notifications
+    name: notifications-service
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/my-bank-realm
+          issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
+  cloud:
+    consul:
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
+      discovery:
+        prefer-ip-address: true

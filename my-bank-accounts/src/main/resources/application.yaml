@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: my-bank-accounts
+    name: accounts-service
   datasource:
     url: jdbc:postgresql://localhost:5432/my_bank
     username: postgres
@@ -16,14 +16,20 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/my-bank-realm
+          issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
       client:
         registration:
           accounts-service:
             client-id: accounts-service
-            client-secret: GVoVJ9qmsJB2NUtQlk96xAclTdB7fjbv
+            client-secret: ${KEYCLOAK_ACCOUNTS_SECRET}
             authorization-grant-type: client_credentials
             provider: keycloak
         provider:
           keycloak:
-            issuer-uri: http://localhost:8180/realms/my-bank-realm
+            issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
+  cloud:
+    consul:
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
+      discovery:
+        prefer-ip-address: true

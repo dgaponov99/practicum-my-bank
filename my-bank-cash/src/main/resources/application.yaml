@@ -3,19 +3,25 @@ server:
 
 spring:
   application:
-    name: my-bank-cash
+    name: cash-service
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/my-bank-realm
+          issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
       client:
         registration:
           cash-service:
             client-id: cash-service
-            client-secret: LO9KIdXJZpqYMrSMZZz5VOdUVnnauorb
+            client-secret: ${KEYCLOAK_CASH_SECRET}
             authorization-grant-type: client_credentials
             provider: keycloak
         provider:
           keycloak:
-            issuer-uri: http://localhost:8180/realms/my-bank-realm
+            issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
+  cloud:
+    consul:
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
+      discovery:
+        prefer-ip-address: true

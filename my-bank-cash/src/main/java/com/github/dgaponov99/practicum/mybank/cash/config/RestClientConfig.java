@@ -5,6 +5,7 @@ import com.github.dgaponov99.practicum.mybank.cash.dto.ErrorDto;
 import com.github.dgaponov99.practicum.mybank.cash.exception.ExternalMultipleException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatusCode;
@@ -20,6 +21,9 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
 
     private final ObjectMapper objectMapper;
+
+    @Value("${spring.application.name}")
+    private String serviceName;
 
     /**
      * Настраиваем OAuth2AuthorizedClientManager —
@@ -62,7 +66,7 @@ public class RestClientConfig {
     private ClientHttpRequestInterceptor addAccessTokenHeader(OAuth2AuthorizedClientManager authorizedClientManager) {
         return (httpRequest, body, execution) -> {
             var fakePrincipal = new UsernamePasswordAuthenticationToken("service", "N/A");
-            var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("cash-service")
+            var authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(serviceName)
                     .principal(fakePrincipal)
                     .build();
 

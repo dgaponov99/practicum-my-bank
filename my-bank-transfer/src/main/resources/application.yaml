@@ -3,19 +3,25 @@ server:
 
 spring:
   application:
-    name: my-bank-transfer
+    name: transfer-service
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/my-bank-realm
+          issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
       client:
         registration:
           transfer-service:
             client-id: transfer-service
-            client-secret: LuDDS3ADJyao2e1bBQK7jFEqZRujfCUj
+            client-secret: ${KEYCLOAK_TRANSFER_SECRET}
             authorization-grant-type: client_credentials
             provider: keycloak
         provider:
           keycloak:
-            issuer-uri: http://localhost:8180/realms/my-bank-realm
+            issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
+  cloud:
+    consul:
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
+      discovery:
+        prefer-ip-address: true

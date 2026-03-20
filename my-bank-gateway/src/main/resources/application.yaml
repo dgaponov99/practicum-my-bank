@@ -3,49 +3,35 @@ server:
 
 spring:
   application:
-    name: my-bank-gateway
+    name: gateway-service
   security:
     oauth2:
       resourceserver:
         jwt:
           # Адрес issuer (Keycloak realm). Gateway по нему получает ключи
           # и параметры токена, чтобы валидировать JWT от UI
-          issuer-uri: http://localhost:8180/realms/my-bank-realm
+          issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
   cloud:
+    consul:
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
+      discovery:
+        prefer-ip-address: true
     gateway:
       server:
         webflux:
-          routes:
-            # Имя маршрута (используется в логах и конфигурации)
-            - id: transfer-service
-              # Куда Gateway проксирует запросы, подходящие под предикаты
-              # Здесь это transfer-service
-              uri: http://localhost:8081
-              predicates:
-                # Все запросы с путём /transfers/** попадут на этот маршрут
-                - Path=/transfers/**
-              filters:
-                # Подключаем кастомный фильтр Token Relay
-                # Он берёт JWT и добавляет заголовок Authorization к исходящему запросу
-                - JwtTokenRelay
-                - StripPrefix=1
-            - id: accounts-service
-              uri: http://localhost:8082
-              predicates:
-                - Path=/accounts/**
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
               filters:
                 - JwtTokenRelay
                 - StripPrefix=1
-            - id: cash-service
-              uri: http://localhost:8083
-              predicates:
-                - Path=/cash/**
-              filters:
-                - JwtTokenRelay
-                - StripPrefix=1
-
-logging:
-  level:
-    org.springframework.cloud.gateway: TRACE
-    org.springframework.security: TRACE
-    reactor.netty.http.client: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,gateway
+  endpoint:
+    gateway:
+      access: read_only

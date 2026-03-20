@@ -25,7 +25,7 @@ public class AccountsInitComponent {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
 
     private final AccountRepository accountRepository;
-    private final RestClient serviceRestClient;
+    private final RestClient keycloakRestClient;
 
     @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
     private String keycloakIssuerUri;
@@ -35,7 +35,7 @@ public class AccountsInitComponent {
         var keycloakUrl = keycloakIssuerUri.split("/realms/")[0];
         var realm = keycloakIssuerUri.split("/realms/")[1];
 
-        var users = serviceRestClient.get()
+        var users = keycloakRestClient.get()
                 .uri(keycloakUrl + "/admin/realms/{realm}/users", realm)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()

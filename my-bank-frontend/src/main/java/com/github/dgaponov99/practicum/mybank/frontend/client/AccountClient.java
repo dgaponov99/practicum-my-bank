@@ -17,7 +17,7 @@ public class AccountClient {
 
     public AccountDto getAccount(String username) {
         return gatewayRestClient.get()
-                .uri("/accounts/{username}", username)
+                .uri("/accounts-service/{username}", username)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .toEntity(AccountDto.class)
@@ -26,7 +26,7 @@ public class AccountClient {
 
     public int getAccountBalance(String username) {
         return gatewayRestClient.get()
-                .uri("/accounts/{username}/balance", username)
+                .uri("/accounts-service/{username}/balance", username)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .toEntity(AccountBalanceDto.class)
@@ -36,7 +36,7 @@ public class AccountClient {
 
     public AccountDto editAccount(String username, AccountDataDto accountDataDto) {
         return gatewayRestClient.put()
-                .uri("/accounts/{username}", username)
+                .uri("/accounts-service/{username}", username)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(accountDataDto)
@@ -47,7 +47,7 @@ public class AccountClient {
 
     public void withdrawCash(String username, int amount) {
         gatewayRestClient.post()
-                .uri("/cash/withdraw")
+                .uri("/cash-service/withdraw")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new CashAmountDto(username, amount))
@@ -57,7 +57,7 @@ public class AccountClient {
 
     public void depositCash(String username, int amount) {
         gatewayRestClient.post()
-                .uri("/cash/deposit")
+                .uri("/cash-service/deposit")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new CashAmountDto(username, amount))
@@ -67,7 +67,7 @@ public class AccountClient {
 
     public List<TransferAccountDto> getTransferAccounts(String username) {
         return gatewayRestClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/transfers/accounts")
+                .uri(uriBuilder -> uriBuilder.path("/transfer-service/accounts")
                         .queryParam("username", username)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
@@ -79,7 +79,7 @@ public class AccountClient {
 
     public void transfer(String fromUsername, String toUsername, int amount) {
         gatewayRestClient.post()
-                .uri("/transfers")
+                .uri("/transfer-service")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new TransferDto(fromUsername, toUsername, amount))
