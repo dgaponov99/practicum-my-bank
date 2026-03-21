@@ -18,6 +18,7 @@ public class SecurityConfig {
         http
                 // Блок настройки авторизации запросов
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/**").permitAll()
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
                 )

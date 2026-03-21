@@ -2,23 +2,211 @@ services:
   keycloak:
     container_name: bank-keycloak
     image: quay.io/keycloak/keycloak:24.0.5
-    command: start-dev
+    command:
+      - start-dev
+      - --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: true
     volumes:
-      - ./keycloak:/opt/keycloak/data
+      - ./keycloak/import:/opt/keycloak/data/import:ro
     ports:
       - "8180:8080"
+    healthcheck:
+      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { java.net.URI uri = java.net.URI.create(args[0]); System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)uri.toURL().openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8080/health/live' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     restart: unless-stopped
 
   consul:
     container_name: bank-consul
     image: hashicorp/consul:1.17
     command: agent -dev -client=0.0.0.0
-    volumes:
-      - ./consul:/consul/data
     ports:
       - "8500:8500"
       - "8600:8600/udp"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8500/v1/status/leader" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  accounts-db:
+    container_name: bank-accounts-db
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: my_bank
+    volumes:
+      - ./accounts-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d my_bank" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  frontend:
+    container_name: my-bank-frontend
+    build: ./my-bank-frontend
+    environment:
+      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_FRONTEND_SECRET=${KEYCLOAK_FRONTEND_SECRET}
+      - GATEWAY_SERVICE_URL=http://gateway:8080
+    ports:
+      - "80:80"
+    extra_hosts:
+      - "auth.local:host-gateway"
+    healthcheck:
+      test: wget -q -O - http://localhost/actuator/health || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    depends_on:
+      gateway:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    restart: unless-stopped
+
+  gateway:
+    container_name: my-bank-gateway
+    build: ./my-bank-gateway
+    environment:
+      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+    extra_hosts:
+      - "auth.local:host-gateway"
+    healthcheck:
+      test: wget -q -O - http://localhost:8080/actuator/health || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    restart: unless-stopped
+
+  accounts:
+    container_name: my-bank-accounts
+    build: ./my-bank-accounts
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://accounts-db:5432/my_bank
+      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_ACCOUNTS_SECRET=${KEYCLOAK_ACCOUNTS_SECRET}
+    extra_hosts:
+      - "auth.local:host-gateway"
+    healthcheck:
+      test: wget -q -O - http://localhost:8082/actuator/health || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    depends_on:
+      accounts-db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    restart: unless-stopped
+
+  transfer:
+    container_name: my-bank-transfer
+    build: ./my-bank-transfer
+    environment:
+      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_TRANSFER_SECRET=${KEYCLOAK_TRANSFER_SECRET}
+    extra_hosts:
+      - "auth.local:host-gateway"
+    healthcheck:
+      test: wget -q -O - http://localhost:8081/actuator/health || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+      accounts:
+        condition: service_healthy
+      notifications:
+        condition: service_healthy
+    restart: unless-stopped
+
+  cash:
+    container_name: my-bank-cash
+    build: ./my-bank-cash
+    environment:
+      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_CASH_SECRET=${KEYCLOAK_CASH_SECRET}
+    extra_hosts:
+      - "auth.local:host-gateway"
+    healthcheck:
+      test: wget -q -O - http://localhost:8083/actuator/health || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+      accounts:
+        condition: service_healthy
+      notifications:
+        condition: service_healthy
+    restart: unless-stopped
+
+  notifications:
+    container_name: my-bank-notifications
+    build: ./my-bank-notifications
+    environment:
+      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+    extra_hosts:
+      - "auth.local:host-gateway"
+    healthcheck:
+      test: wget -q -O - http://localhost:8084/actuator/health || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
     restart: unless-stopped
