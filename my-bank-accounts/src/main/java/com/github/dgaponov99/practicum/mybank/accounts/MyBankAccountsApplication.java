@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MyBankAccountsApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MyBankAccountsApplication.class, args);
+        var app = new SpringApplication(MyBankAccountsApplication.class);
+        app.setAdditionalProfiles("accounts-init");
+
+        app.run(args);
     }
 
 }
