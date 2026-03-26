@@ -1,6 +1,15 @@
 server:
   port: 8083
 
+keycloak:
+  url: http://localhost:8180
+  realm: my-bank-realm
+  cash:
+    secret: secret
+consul:
+  host: localhost
+  port: 8500
+
 spring:
   application:
     name: cash-service
@@ -8,20 +17,20 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
+          issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
       client:
         registration:
           cash-service:
             client-id: cash-service
-            client-secret: ${KEYCLOAK_CASH_SECRET}
+            client-secret: ${keycloak.cash.secret}
             authorization-grant-type: client_credentials
             provider: keycloak
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
+            issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
   cloud:
     consul:
-      host: ${CONSUL_HOST}
-      port: ${CONSUL_PORT}
+      host: ${consul.host}
+      port: ${consul.port}
       discovery:
         prefer-ip-address: true
