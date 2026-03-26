@@ -16,7 +16,7 @@ public class NotificationsController {
 
     @PostMapping()
     @PreAuthorize("hasAuthority('notifications.write')")
-    public ResponseEntity<Void> deposit(@RequestBody NotificationDto notificationDto) {
+    public ResponseEntity<Void> notification(@RequestBody NotificationDto notificationDto) {
         log.info("Notification for {}: {}", notificationDto.username(), notificationDto.message());
         return ResponseEntity.ok().build();
     }

@@ -55,6 +55,12 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-contract-verifier</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -73,6 +79,17 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-contract-maven-plugin</artifactId>
+				<extensions>true</extensions>
+
+				<configuration>
+					<contractsDirectory>${project.basedir}/src/test/resources/contracts</contractsDirectory>
+					<baseClassForTests>com.github.dgaponov99.practicum.mybank.notifications.contracts.notifications.BaseContractTest</baseClassForTests>
+					<nameSuffixForTests>Test</nameSuffixForTests>
 				</configuration>
 			</plugin>
 		</plugins>
