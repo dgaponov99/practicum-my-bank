@@ -1,6 +1,13 @@
 server:
   port: 8080
 
+keycloak:
+  url: http://localhost:8180
+  realm: my-bank-realm
+consul:
+  host: localhost
+  port: 8500
+
 spring:
   application:
     name: gateway-service
@@ -10,11 +17,11 @@ spring:
         jwt:
           # Адрес issuer (Keycloak realm). Gateway по нему получает ключи
           # и параметры токена, чтобы валидировать JWT от UI
-          issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
+          issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
   cloud:
     consul:
-      host: ${CONSUL_HOST}
-      port: ${CONSUL_PORT}
+      host: ${consul.host}
+      port: ${consul.port}
       discovery:
         prefer-ip-address: true
     gateway:
