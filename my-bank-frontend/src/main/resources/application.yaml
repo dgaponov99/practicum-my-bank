@@ -1,6 +1,12 @@
 server:
   port: 80
 
+keycloak:
+  url: http://localhost:8180
+  realm: my-bank-realm
+  frontend:
+    secret: secret
+
 spring:
   application:
     name: frontend-service
@@ -10,11 +16,11 @@ spring:
         registration:
           keycloak:
             client-id: frontend-service
-            client-secret: ${KEYCLOAK_FRONTEND_SECRET}
+            client-secret: ${keycloak.frontend.secret}
             authorization-grant-type: authorization_code
             scope: openid, profile
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             provider: keycloak
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}
+            issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
