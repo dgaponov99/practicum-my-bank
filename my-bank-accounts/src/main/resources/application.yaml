@@ -43,3 +43,12 @@ spring:
       port: ${consul.port}
       discovery:
         prefer-ip-address: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      notifications-service:
+        slidingWindowSize: 10
+        failureRateThreshold: 3
+        waitDurationInOpenState: 60s
+        permittedNumberOfCallsInHalfOpenState: 1

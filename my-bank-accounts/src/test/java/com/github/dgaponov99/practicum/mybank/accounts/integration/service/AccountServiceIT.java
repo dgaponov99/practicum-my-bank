@@ -6,6 +6,7 @@ import com.github.dgaponov99.practicum.mybank.accounts.exception.InsufficientFun
 import com.github.dgaponov99.practicum.mybank.accounts.integration.ClearSchemaIT;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.entity.Account;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.repository.AccountRepository;
+import com.github.dgaponov99.practicum.mybank.accounts.persistence.repository.NotificationOutboxRepository;
 import com.github.dgaponov99.practicum.mybank.accounts.service.AccountsService;
 import com.github.dgaponov99.practicum.mybank.accounts.web.dto.AccountDataDto;
 import com.github.dgaponov99.practicum.mybank.accounts.web.dto.TransferDto;
@@ -28,6 +29,8 @@ public class AccountServiceIT extends ClearSchemaIT {
     AccountsService accountsService;
     @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    NotificationOutboxRepository notificationOutboxRepository;
     @MockitoBean
     NotificationsClient notificationsClient;
 
@@ -95,6 +98,23 @@ public class AccountServiceIT extends ClearSchemaIT {
                 .atMost(Duration.ofSeconds(3))
                 .untilAsserted(() ->
                         verify(notificationsClient, times(1)).sendNotification(any())
+                );
+
+    }
+
+    @Test
+    public void editAccount_success_outbox() {
+        doThrow(RuntimeException.class).when(notificationsClient).sendNotification(any());
+
+        var account = accountsService.editAccount("user1", new AccountDataDto("Иванов Иван1", LocalDate.parse("2000-02-01")));
+        assertNotNull(account);
+
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(3))
+                .untilAsserted(() -> {
+                            verify(notificationsClient, times(1)).sendNotification(any());
+                            assertEquals(1, notificationOutboxRepository.count());
+                        }
                 );
 
     }

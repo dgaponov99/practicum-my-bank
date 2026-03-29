@@ -1,7 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.accounts.event;
 
-import com.github.dgaponov99.practicum.mybank.accounts.client.NotificationsClient;
-import com.github.dgaponov99.practicum.mybank.accounts.client.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.accounts.gateway.NotificationsGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -14,13 +13,13 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class NotificationEventListener {
 
-    private final NotificationsClient notificationsClient;
+    private final NotificationsGateway notificationsGateway;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onEditComplete(EditAccountEvent editAccountEvent) {
         try {
-            notificationsClient.sendNotification(new NotificationDto(editAccountEvent.username(), "Счет пользователя успешно отредактирован"));
+            notificationsGateway.sendNotification(editAccountEvent.username(), "Счет пользователя успешно отредактирован");
         } catch (Exception e) {
             log.warn("Ошибка отправки уведомления: {}", e.getMessage(), e);
         }
@@ -30,7 +29,7 @@ public class NotificationEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
     public void onErrorEditComplete(EditAccountEvent editAccountEvent) {
         try {
-            notificationsClient.sendNotification(new NotificationDto(editAccountEvent.username(), "Ошибка редактирования счета пользователя"));
+            notificationsGateway.sendNotification(editAccountEvent.username(), "Ошибка редактирования счета пользователя");
         } catch (Exception e) {
             log.warn("Ошибка отправки уведомления: {}", e.getMessage(), e);
         }

@@ -8,3 +8,14 @@ create table account
     birth_date date         not null,
     balance    bigint       not null check ( balance >= 0 )
 );
+
+-- changeset dgaponov99:001-init-outbox
+create table notification_outbox
+(
+    id            uuid primary key,
+    payload       jsonb     not null,
+    retry_count   integer   not null default 0,
+    next_retry_at timestamp not null default current_timestamp,
+    created_at    timestamp not null default current_timestamp,
+    updated_at    timestamp not null default current_timestamp
+);
