@@ -9,7 +9,9 @@
 - `my-bank-notifications`: Сервис отправки уведомлений об осуществлении операций пользователям
 - `bank-keycloak`: Единый сервис авторизации
 - `bank-consul`: Сервис регистрации самописных микросервисов
-- `bank-accounts-db`: СУБД PostgreSql для хранения счетов пользователей
+- `bank-accounts-db`: СУБД PostgreSql для хранения счетов пользователей и outbox
+- `bank-transfer-db`: СУБД PostgreSql outbox
+- `bank-cash-db`: СУБД PostgreSql outbox
 
 ### Требования:
 - jdk 21

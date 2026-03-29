@@ -33,3 +33,5 @@ build/
 .vscode/
 
 accounts-db
+transfer-db
+cash-db
