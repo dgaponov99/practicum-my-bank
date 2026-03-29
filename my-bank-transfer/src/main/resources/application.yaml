@@ -51,3 +51,10 @@ resilience4j:
         failureRateThreshold: 3
         waitDurationInOpenState: 60s
         permittedNumberOfCallsInHalfOpenState: 1
+      accounts-service:
+        slidingWindowSize: 10
+        failureRateThreshold: 3
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 1
+        ignore-exceptions:
+          - com.github.dgaponov99.practicum.mybank.transfer.exception.ExternalMultipleException
