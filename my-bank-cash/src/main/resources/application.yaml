@@ -13,6 +13,14 @@ consul:
 spring:
   application:
     name: cash-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/my_bank_cash
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
   security:
     oauth2:
       resourceserver:
@@ -34,3 +42,12 @@ spring:
       port: ${consul.port}
       discovery:
         prefer-ip-address: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      notifications-service:
+        slidingWindowSize: 10
+        failureRateThreshold: 3
+        waitDurationInOpenState: 60s
+        permittedNumberOfCallsInHalfOpenState: 1
