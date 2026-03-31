@@ -1,0 +1,54 @@
+server:
+  port: 8082
+
+keycloak:
+  url: http://localhost:8180
+  realm: my-bank-realm
+  accounts:
+    secret: secret
+consul:
+  host: localhost
+  port: 8500
+
+
+spring:
+  application:
+    name: accounts-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/my_bank
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
+      client:
+        registration:
+          accounts-service:
+            client-id: accounts-service
+            client-secret: ${keycloak.accounts.secret}
+            authorization-grant-type: client_credentials
+            provider: keycloak
+        provider:
+          keycloak:
+            issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
+  cloud:
+    consul:
+      host: ${consul.host}
+      port: ${consul.port}
+      discovery:
+        prefer-ip-address: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      notifications-service:
+        slidingWindowSize: 10
+        failureRateThreshold: 3
+        waitDurationInOpenState: 60s
+        permittedNumberOfCallsInHalfOpenState: 1

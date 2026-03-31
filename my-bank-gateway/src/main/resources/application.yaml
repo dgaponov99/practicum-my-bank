@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+keycloak:
+  url: http://localhost:8180
+  realm: my-bank-realm
+consul:
+  host: localhost
+  port: 8500
+
+spring:
+  application:
+    name: gateway-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Адрес issuer (Keycloak realm). Gateway по нему получает ключи
+          # и параметры токена, чтобы валидировать JWT от UI
+          issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
+  cloud:
+    consul:
+      host: ${consul.host}
+      port: ${consul.port}
+      discovery:
+        prefer-ip-address: true
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+              filters:
+                - JwtTokenRelay
+                - StripPrefix=1
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,gateway
+  endpoint:
+    gateway:
+      access: read_only

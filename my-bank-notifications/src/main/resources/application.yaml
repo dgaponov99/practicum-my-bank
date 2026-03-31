@@ -1,0 +1,24 @@
+server:
+  port: 8084
+
+keycloak:
+  url: http://localhost:8180
+  realm: my-bank-realm
+consul:
+  host: localhost
+  port: 8500
+
+spring:
+  application:
+    name: notifications-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
+  cloud:
+    consul:
+      host: ${consul.host}
+      port: ${consul.port}
+      discovery:
+        prefer-ip-address: true

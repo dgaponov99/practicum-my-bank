@@ -1,0 +1,11 @@
+accounts:
+  service:
+    url: http://localhost:8382
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+app:
+  oauth:
+    enabled: false
