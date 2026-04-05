@@ -1,0 +1,76 @@
+postgresql:
+  fullnameOverride: postgres
+  auth:
+    existingSecret: postgres-secret
+  primary:
+    persistence:
+      enabled: true
+    initdb:
+      scripts:
+        init.sql: |
+          CREATE DATABASE accounts;
+          CREATE DATABASE transfer;
+          CREATE DATABASE cash;
+
+db:
+  host: postgres
+keycloak:
+  url: http://auth-local:8180
+gateway:
+  service: gateway
+
+components:
+  accounts-service:
+    replicaCount: 1
+    image:
+      repository: my-bank-accounts
+      tag: "latest"
+    service:
+      port: 8082
+    db:
+      name: accounts
+    keycloak:
+      secret:
+        property: KEYCLOAK_ACCOUNTS_SECRET
+
+  transfer-service:
+    replicaCount: 1
+    image:
+      repository: my-bank-transfer
+      tag: "latest"
+    service:
+      port: 8081
+    db:
+      name: transfer
+    keycloak:
+      secret:
+        property: KEYCLOAK_TRANSFER_SECRET
+
+  cash-service:
+    replicaCount: 1
+    image:
+      repository: my-bank-cash
+      tag: "latest"
+    service:
+      port: 8083
+    db:
+      name: cash
+    keycloak:
+      secret:
+        property: KEYCLOAK_CASH_SECRET
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+  initialDelaySeconds: 20
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+  initialDelaySeconds: 30
+  periodSeconds: 10
+startupProbe:
+  httpGet:
+    path: /actuator/health/liveness
+  failureThreshold: 60
+  periodSeconds: 5

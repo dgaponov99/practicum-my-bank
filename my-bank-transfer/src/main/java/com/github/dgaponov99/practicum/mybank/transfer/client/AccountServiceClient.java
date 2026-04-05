@@ -17,7 +17,7 @@ public class AccountServiceClient {
 
     private final RestClient serviceRestClient;
 
-    @Value("${accounts.service.url:http://accounts-service}")
+    @Value("${accounts.service.url:http://accounts-service:8082}")
     private String baseUrl;
 
     public List<AccountDto> getAllAccounts() {

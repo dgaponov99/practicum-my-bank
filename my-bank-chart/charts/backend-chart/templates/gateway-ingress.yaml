@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-gateway
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Values.gateway.service }}
+      http:
+        paths:
+          {{- range $name, $comp := .Values.components }}
+          - path: {{printf "/%s(/|$)(.*)" $name }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $name }}
+                port:
+                  number: {{ $comp.service.port }}
+          {{- end }}

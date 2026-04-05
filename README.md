@@ -2,30 +2,33 @@
 
 ### Состав:
 - `my-bank-frontend`: Единое фронтенд приложение на основе WebMVC
-- `my-bank-gateway`: Единый шлюз для обращения фронтенда к микросервисам бэкенда
 - `my-bank-accounts`: Сервис хранения и выполнения операций над счетами пользователя
 - `my-bank-cash`: Сервис обработки операций с наличными
 - `my-bank-transfer`: Сервис обработки операций с переводами между пользователями
 - `my-bank-notifications`: Сервис отправки уведомлений об осуществлении операций пользователям
 - `bank-keycloak`: Единый сервис авторизации
-- `bank-consul`: Сервис регистрации самописных микросервисов
-- `bank-accounts-db`: СУБД PostgreSql для хранения счетов пользователей и outbox
-- `bank-transfer-db`: СУБД PostgreSql outbox
-- `bank-cash-db`: СУБД PostgreSql outbox
+- `vault`: Сервис хранения секретов
 
 ### Требования:
 - jdk 21
 - docker engine
+- k8s
+- helm
 
 ### Запуск тестов со сборкой jar:
 - Запустить `docker engine`
 - Выполнить `mvn clean install`
 
 ### Запуск приложения:
-- В `hosts` вашей ОС добавить запись `127.0.0.1 auth.local`
+- В `hosts` вашей ОС добавить запись `127.0.0.1 auth-local`
 - Выполнить `mvn clean package`
 - Запустить `docker engine`
+- Выполнить `docker-build.sh`
 - Выполнить `docker compose up -d`
+- Выполнить `helm-common-install.sh`
+- Выполнить `helm dependency build ./my-bank-chart/charts/backend-chart`
+- Выполнить `helm dependency build ./my-bank-chart`
+- Выполнить `helm upgrade --install my-bank-release ./my-bank-chart`
 - После успешной сборки и запуска приложение будет доступно по адресу `http://localhost`
 
 ### Тестовые пользователи (login / pass):
@@ -44,6 +47,7 @@
 - `accounts-service`:
   - `SERVICE`
     - `notifications.write`
+  - `realm-management`
 - `transfer-service`:
     - `SERVICE`
         - `notifications.write`

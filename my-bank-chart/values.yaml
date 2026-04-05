@@ -1,0 +1,4 @@
+vault:
+  url: "http://host.docker.internal:8200"
+keycloak:
+  host: auth-local
