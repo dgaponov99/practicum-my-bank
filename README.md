@@ -28,7 +28,10 @@
 - Выполнить `helm-common-install.sh`
 - Выполнить `helm dependency build ./my-bank-chart/charts/backend-chart`
 - Выполнить `helm dependency build ./my-bank-chart`
+- Выполнить `helm lint ./my-bank-chart` для валидации конфигурации
+- Выполнить `helm upgrade --install --dry-run my-bank-release ./my-bank-chart` для валидации в K8s api
 - Выполнить `helm upgrade --install my-bank-release ./my-bank-chart`
+- Выполнить `helm test my-bank-release` для тестирования сервисов
 - После успешной сборки и запуска приложение будет доступно по адресу `http://localhost`
 
 ### Тестовые пользователи (login / pass):

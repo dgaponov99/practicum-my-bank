@@ -2,3 +2,30 @@ vault:
   url: "http://host.docker.internal:8200"
 keycloak:
   host: auth-local
+
+tests:
+  frontend-service:
+    port: 80
+    method: GET
+    url: /account
+    expectCode: 302
+  accounts-service:
+    port: 8082
+    method: GET
+    url: /
+    expectCode: 401
+  transfer-service:
+    port: 8081
+    method: GET
+    url: /accounts
+    expectCode: 401
+  cash-service:
+    port: 8083
+    method: POST
+    url: /withdraw
+    expectCode: 401
+  notifications-service:
+    port: 8084
+    method: POST
+    url: /
+    expectCode: 401
