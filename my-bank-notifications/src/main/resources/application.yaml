@@ -1,18 +1,18 @@
 server:
   port: 8084
 
-keycloak:
-  url: http://auth-local:8180
-  realm: my-bank-realm
-
 spring:
-  application:
-    name: notifications-service
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
+  kafka:
+    bootstrap-servers: localhost:9001
+    consumer:
+      group-id: notifications-service
+      enable-auto-commit: false
+      isolation-level: read_committed
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties.spring.json.trusted.packages: com.github.dgaponov99.practicum.mybank.notifications.dto
+    listener:
+      ack-mode: manual
 
 management:
   endpoints:
