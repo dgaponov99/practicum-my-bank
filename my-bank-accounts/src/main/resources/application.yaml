@@ -34,15 +34,11 @@ spring:
         provider:
           keycloak:
             issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      notifications-service:
-        slidingWindowSize: 10
-        failureRateThreshold: 3
-        waitDurationInOpenState: 60s
-        permittedNumberOfCallsInHalfOpenState: 1
+  kafka:
+    bootstrap-servers: localhost:9001
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 management:
   endpoints:

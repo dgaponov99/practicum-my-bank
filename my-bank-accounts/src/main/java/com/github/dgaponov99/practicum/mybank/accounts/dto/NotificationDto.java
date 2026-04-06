@@ -1,4 +1,4 @@
-package com.github.dgaponov99.practicum.mybank.accounts.client.dto;
+package com.github.dgaponov99.practicum.mybank.accounts.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
