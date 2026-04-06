@@ -61,3 +61,14 @@
         - `notifications.write`
     - `accounts.read`
     - `accounts.write`
+
+### Состав helm-чартов и схема взаимодействия сервисов:
+
+- `my-bank-chart`: основной umbrella-чарт со вспомогательными сервисами и секретами
+    - `frontend-chart`: чарт сервиса фронденда, содержащий сам сервис и ingress для внешнего доступа из вне кластера
+    - `backend-chart`: чарт сервисов бэкенда (accounts-service, transfer-service, cash-service) и их базы данных
+      postgresql. K8s ресурсы сервисов созданы с помощью Range цикла так как являются типовыми. Так же содержит
+      gateway-ingress для доступа к сервисам через единый домен gateway кластера.
+        - `notifications-chart`: чарт сервиса уведомлений, который является сабчартом общего backend-чарта
+
+![](./my-bank-schema.jpg)
