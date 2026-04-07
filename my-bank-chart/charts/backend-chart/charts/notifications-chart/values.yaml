@@ -24,3 +24,6 @@ startupProbe:
     port: 8084
   failureThreshold: 60
   periodSeconds: 5
+
+kafka:
+  bootstrapServers: kafka-broker-0.kafka-headless.kafka.svc.cluster.local:9092

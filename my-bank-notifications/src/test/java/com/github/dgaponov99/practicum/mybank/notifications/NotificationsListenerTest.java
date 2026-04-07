@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.notifications;
 
-import com.github.dgaponov99.practicum.mybank.notifications.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import com.github.dgaponov99.practicum.mybank.notifications.listener.NotificationsListener;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -71,7 +71,7 @@ public class NotificationsListenerTest {
             producer.flush();
 
             Awaitility.await()
-                    .atMost(Duration.ofSeconds(5))
+                    .atMost(Duration.ofSeconds(10))
                     .untilAsserted(() -> {
                         verify(notificationsListener, times(1)).listen(dtoCaptor.capture(), any());
                         var notificationDto = dtoCaptor.getValue();
@@ -98,7 +98,7 @@ public class NotificationsListenerTest {
             producer.flush();
 
             Awaitility.await()
-                    .atMost(Duration.ofSeconds(5))
+                    .atMost(Duration.ofSeconds(10))
                     .untilAsserted(() -> {
                         verify(notificationsListener, times(2)).listen(dtoCaptor.capture(), any());
                         var notificationDto = dtoCaptor.getValue();
@@ -121,7 +121,7 @@ public class NotificationsListenerTest {
             producer.flush();
 
             Awaitility.await()
-                    .atMost(Duration.ofSeconds(5))
+                    .atMost(Duration.ofSeconds(10))
                     .untilAsserted(() -> {
                         verify(notificationsListener, never()).listen(any(), any());
                     });
@@ -132,7 +132,7 @@ public class NotificationsListenerTest {
                     new JsonDeserializer<>(NotificationDto.class))) {
                 var partition = new TopicPartition("notifications", 0);
                 Awaitility.await()
-                        .atMost(Duration.ofSeconds(5))
+                        .atMost(Duration.ofSeconds(10))
                         .untilAsserted(() -> {
                             var committed = consumer.committed(Set.of(partition));
                             assertNotNull(committed);

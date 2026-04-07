@@ -6,3 +6,7 @@ kubectl create secret generic vault-token --from-literal=token=66b52c97-e8f6-445
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace
+
+helm repo add kafka-repo https://helm-charts.itboon.top/kafka
+helm repo update
+helm install kafka kafka-repo/kafka -n kafka --create-namespace --set broker.combinedMode.enabled=true --set broker.replicaCount=3 --set broker.config.min.insync.replicas=2

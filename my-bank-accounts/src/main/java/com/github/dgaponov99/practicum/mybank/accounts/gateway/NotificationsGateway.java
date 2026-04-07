@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.accounts.gateway;
 
-import com.github.dgaponov99.practicum.mybank.accounts.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.entity.NotificationOutbox;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.repository.NotificationOutboxRepository;
 import com.github.dgaponov99.practicum.mybank.accounts.properties.OutboxProperties;

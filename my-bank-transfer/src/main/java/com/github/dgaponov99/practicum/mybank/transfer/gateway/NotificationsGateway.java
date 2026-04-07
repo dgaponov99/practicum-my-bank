@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.transfer.gateway;
 
-import com.github.dgaponov99.practicum.mybank.transfer.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import com.github.dgaponov99.practicum.mybank.transfer.persistence.entity.NotificationOutbox;
 import com.github.dgaponov99.practicum.mybank.transfer.persistence.repository.NotificationOutboxRepository;
 import com.github.dgaponov99.practicum.mybank.transfer.properties.OutboxProperties;

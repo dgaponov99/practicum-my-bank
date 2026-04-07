@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.cash.integration.kafka;
 
-import com.github.dgaponov99.practicum.mybank.cash.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import com.github.dgaponov99.practicum.mybank.cash.gateway.NotificationsGateway;
 import com.github.dgaponov99.practicum.mybank.cash.integration.PostreSQLTestcontainer;
 import com.github.dgaponov99.practicum.mybank.cash.persistence.repository.NotificationOutboxRepository;

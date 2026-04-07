@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.accounts.integration.kafka;
 
-import com.github.dgaponov99.practicum.mybank.accounts.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import com.github.dgaponov99.practicum.mybank.accounts.gateway.NotificationsGateway;
 import com.github.dgaponov99.practicum.mybank.accounts.integration.ClearSchemaIT;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.repository.NotificationOutboxRepository;

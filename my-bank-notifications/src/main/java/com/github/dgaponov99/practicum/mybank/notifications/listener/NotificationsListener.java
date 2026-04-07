@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.notifications.listener;
 
-import com.github.dgaponov99.practicum.mybank.notifications.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

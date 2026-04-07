@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.cash.persistence.entity;
 
-import com.github.dgaponov99.practicum.mybank.cash.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

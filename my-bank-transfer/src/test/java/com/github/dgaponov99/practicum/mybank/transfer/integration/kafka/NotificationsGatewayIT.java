@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.transfer.integration.kafka;
 
-import com.github.dgaponov99.practicum.mybank.transfer.dto.NotificationDto;
+import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import com.github.dgaponov99.practicum.mybank.transfer.gateway.NotificationsGateway;
 import com.github.dgaponov99.practicum.mybank.transfer.integration.PostreSQLTestcontainer;
 import com.github.dgaponov99.practicum.mybank.transfer.persistence.repository.NotificationOutboxRepository;

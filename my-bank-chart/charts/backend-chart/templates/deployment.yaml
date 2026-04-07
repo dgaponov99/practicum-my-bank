@@ -48,5 +48,7 @@ spec:
               value: {{ $comp.db.name }}
             - name: KEYCLOAK_URL
               value: {{ $.Values.keycloak.url }}
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              value: {{ $.Values.kafka.bootstrapServers }}
 ---
 {{- end }}
