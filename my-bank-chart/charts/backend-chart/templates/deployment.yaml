@@ -1,0 +1,52 @@
+{{- range $name, $comp := .Values.components }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+spec:
+  replicas: {{ $comp.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+    spec:
+      containers:
+        - name: {{ $name }}
+          image: "{{ $comp.image.repository }}:{{ $comp.image.tag }}"
+          ports:
+            - containerPort: {{ $comp.service.port }}
+          livenessProbe:
+            httpGet:
+              path: {{ $.Values.livenessProbe.httpGet.path }}
+              port: {{ $comp.service.port }}
+            initialDelaySeconds: {{ $.Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ $.Values.readinessProbe.httpGet.path }}
+              port: {{ $comp.service.port }}
+            initialDelaySeconds: {{ $.Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.readinessProbe.periodSeconds }}
+          startupProbe:
+            httpGet:
+              path: {{ $.Values.startupProbe.httpGet.path }}
+              port: {{ $comp.service.port }}
+            failureThreshold: {{ $.Values.startupProbe.failureThreshold }}
+            periodSeconds: {{ $.Values.startupProbe.periodSeconds }}
+          env:
+            - name: {{ $comp.keycloak.secret.property }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-keycloak-secret" $name }}
+                  key: client-secret
+            - name: DB_HOST
+              value: {{ $.Values.db.host }}
+            - name: DB_NAME
+              value: {{ $comp.db.name }}
+            - name: KEYCLOAK_URL
+              value: {{ $.Values.keycloak.url }}
+---
+{{- end }}

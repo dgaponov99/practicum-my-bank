@@ -1,0 +1,18 @@
+{{- range $name, $comp := .Values.tests }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ $name }}-test-connection"
+  annotations:
+    "helm.sh/hook": test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: test
+      image: curlimages/curl
+      command: [ "curl" ]
+      args:
+        - "--fail"
+        - "http://{{ $name }}:{{ $comp.port }}/actuator/health"
+---
+{{- end }}

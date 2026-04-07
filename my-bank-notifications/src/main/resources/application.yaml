@@ -2,11 +2,8 @@ server:
   port: 8084
 
 keycloak:
-  url: http://localhost:8180
+  url: http://auth-local:8180
   realm: my-bank-realm
-consul:
-  host: localhost
-  port: 8500
 
 spring:
   application:
@@ -16,9 +13,18 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
-  cloud:
-    consul:
-      host: ${consul.host}
-      port: ${consul.port}
-      discovery:
-        prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true

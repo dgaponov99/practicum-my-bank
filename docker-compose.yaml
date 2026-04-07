@@ -21,228 +21,35 @@ services:
       start_period: 60s
     restart: unless-stopped
 
-  consul:
-    container_name: bank-consul
-    image: hashicorp/consul:1.17
-    command: agent -dev -client=0.0.0.0
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: vault
     ports:
-      - "8500:8500"
-      - "8600:8600/udp"
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN}
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    command: vault server -dev
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8500/v1/status/leader" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:8200/v1/sys/health" ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
     restart: unless-stopped
 
-  accounts-db:
-    container_name: bank-accounts-db
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: my_bank
+  vault-init:
+    image: hashicorp/vault:1.15
+    container_name: vault-init
+    depends_on:
+      vault:
+        condition: service_healthy
     volumes:
-      - ./accounts-db:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d my_bank" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    restart: unless-stopped
-
-  frontend:
-    container_name: my-bank-frontend
-    build: ./my-bank-frontend
+      - ./.env:/app/.env:ro
+      - ./vault/vault-init.sh:/app/vault-init.sh
     environment:
-      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
-      - CONSUL_PORT=${CONSUL_PORT}
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
-      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
-      - KEYCLOAK_FRONTEND_SECRET=${KEYCLOAK_FRONTEND_SECRET}
-      - GATEWAY_SERVICE_URL=http://gateway:8080
-    ports:
-      - "80:80"
-    extra_hosts:
-      - "auth.local:host-gateway"
-    healthcheck:
-      test: wget -q -O - http://localhost/actuator/health || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-    depends_on:
-      gateway:
-        condition: service_healthy
-      keycloak:
-        condition: service_healthy
-      consul:
-        condition: service_healthy
-    restart: unless-stopped
-
-  gateway:
-    container_name: my-bank-gateway
-    build: ./my-bank-gateway
-    environment:
-      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
-      - CONSUL_PORT=${CONSUL_PORT}
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
-      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
-    extra_hosts:
-      - "auth.local:host-gateway"
-    healthcheck:
-      test: wget -q -O - http://localhost:8080/actuator/health || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-    depends_on:
-      keycloak:
-        condition: service_healthy
-      consul:
-        condition: service_healthy
-    restart: unless-stopped
-
-  accounts:
-    container_name: my-bank-accounts
-    build: ./my-bank-accounts
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://accounts-db:5432/my_bank
-      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
-      - CONSUL_PORT=${CONSUL_PORT}
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
-      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
-      - KEYCLOAK_ACCOUNTS_SECRET=${KEYCLOAK_ACCOUNTS_SECRET}
-    extra_hosts:
-      - "auth.local:host-gateway"
-    healthcheck:
-      test: wget -q -O - http://localhost:8082/actuator/health || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-    depends_on:
-      accounts-db:
-        condition: service_healthy
-      keycloak:
-        condition: service_healthy
-      consul:
-        condition: service_healthy
-    restart: unless-stopped
-
-  transfer-db:
-    container_name: bank-transfer-db
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: my_bank_transfer
-    volumes:
-      - ./transfer-db:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d my_bank_transfer" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    restart: unless-stopped
-
-  transfer:
-    container_name: my-bank-transfer
-    build: ./my-bank-transfer
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://transfer-db:5432/my_bank_transfer
-      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
-      - CONSUL_PORT=${CONSUL_PORT}
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
-      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
-      - KEYCLOAK_TRANSFER_SECRET=${KEYCLOAK_TRANSFER_SECRET}
-    extra_hosts:
-      - "auth.local:host-gateway"
-    healthcheck:
-      test: wget -q -O - http://localhost:8081/actuator/health || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-    depends_on:
-      keycloak:
-        condition: service_healthy
-      consul:
-        condition: service_healthy
-      accounts:
-        condition: service_healthy
-      notifications:
-        condition: service_healthy
-    restart: unless-stopped
-
-  cash-db:
-    container_name: bank-cash-db
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: my_bank_cash
-    volumes:
-      - ./cash-db:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d my_bank_cash" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    restart: unless-stopped
-
-  cash:
-    container_name: my-bank-cash
-    build: ./my-bank-cash
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://cash-db:5432/my_bank_cash
-      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
-      - CONSUL_PORT=${CONSUL_PORT}
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
-      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
-      - KEYCLOAK_CASH_SECRET=${KEYCLOAK_CASH_SECRET}
-    extra_hosts:
-      - "auth.local:host-gateway"
-    healthcheck:
-      test: wget -q -O - http://localhost:8083/actuator/health || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-    depends_on:
-      keycloak:
-        condition: service_healthy
-      consul:
-        condition: service_healthy
-      accounts:
-        condition: service_healthy
-      notifications:
-        condition: service_healthy
-    restart: unless-stopped
-
-  notifications:
-    container_name: my-bank-notifications
-    build: ./my-bank-notifications
-    environment:
-      - CONSUL_HOST=${CONSUL_DOCKER_HOST}
-      - CONSUL_PORT=${CONSUL_PORT}
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
-      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
-    extra_hosts:
-      - "auth.local:host-gateway"
-    healthcheck:
-      test: wget -q -O - http://localhost:8084/actuator/health || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-    depends_on:
-      keycloak:
-        condition: service_healthy
-      consul:
-        condition: service_healthy
-    restart: unless-stopped
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: ${VAULT_TOKEN}
+    entrypoint: [ "/bin/sh", "/app/vault-init.sh" ]
+    restart: no

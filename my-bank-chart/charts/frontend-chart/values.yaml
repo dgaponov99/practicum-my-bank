@@ -1,0 +1,33 @@
+replicaCount: 1
+image:
+  repository: my-bank-frontend
+  tag: "latest"
+service:
+  port: 80
+  type: ClusterIP
+
+keycloak:
+  secret:
+    property: KEYCLOAK_FRONTEND_SECRET
+gateway:
+  service:
+    url: http://gateway:80
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 80
+  initialDelaySeconds: 20
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 80
+  initialDelaySeconds: 30
+  periodSeconds: 10
+startupProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 80
+  failureThreshold: 60
+  periodSeconds: 5

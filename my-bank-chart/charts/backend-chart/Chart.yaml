@@ -1,0 +1,15 @@
+apiVersion: v2
+name: backend
+description: A Backend Helm chart for Practicum My Bank Project
+
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: postgresql
+    version: 18.5.14
+    repository: oci://registry-1.docker.io/bitnamicharts
+  - name: notifications-chart
+    version: 0.1.0
+    repository: file://charts/notifications-chart

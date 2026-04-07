@@ -1,0 +1,29 @@
+{{- range $name, $comp := .Values.tests }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ $name }}-test-auth"
+  annotations:
+    "helm.sh/hook": test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: test
+      image: curlimages/curl
+      command:
+        - sh
+        - -c
+        - |
+          echo "Testing unauthorized access..."
+          status=$(curl -o /dev/null -s -w "%{http_code}" -X {{ $comp.method }} http://{{ $name }}:{{ $comp.port }}{{ $comp.url }})
+
+          echo "Status: $status"
+          if [ "$status" = "{{ $comp.expectCode }}" ]; then
+            echo "Test passed"
+            exit 0
+          else
+            echo "Expected {{ $comp.expectCode }} but got $status"
+            exit 1
+          fi
+---
+{{- end }}

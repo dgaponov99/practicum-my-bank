@@ -29,16 +29,16 @@ public class AccountsInitComponent {
     private final AccountRepository accountRepository;
     private final RestClient keycloakRestClient;
 
-    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
-    private String keycloakIssuerUri;
+    @Value("${keycloak.url}")
+    private String keycloakUrl;
+    @Value("${keycloak.realm}")
+    private String keycloakRealm;
 
     @EventListener(ApplicationReadyEvent.class)
     public void initAccounts() {
-        var keycloakUrl = keycloakIssuerUri.split("/realms/")[0];
-        var realm = keycloakIssuerUri.split("/realms/")[1];
 
         var users = keycloakRestClient.get()
-                .uri(keycloakUrl + "/admin/realms/{realm}/users", realm)
+                .uri(keycloakUrl + "/admin/realms/{realm}/users", keycloakRealm)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<Map<String, Object>>>() {

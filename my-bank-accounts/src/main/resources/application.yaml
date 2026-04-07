@@ -6,18 +6,15 @@ keycloak:
   realm: my-bank-realm
   accounts:
     secret: secret
-consul:
-  host: localhost
-  port: 8500
 
 
 spring:
   application:
     name: accounts-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/my_bank
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:my_bank}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -37,12 +34,6 @@ spring:
         provider:
           keycloak:
             issuer-uri: ${keycloak.url}/realms/${keycloak.realm}
-  cloud:
-    consul:
-      host: ${consul.host}
-      port: ${consul.port}
-      discovery:
-        prefer-ip-address: true
 
 resilience4j:
   circuitbreaker:
@@ -52,3 +43,18 @@ resilience4j:
         failureRateThreshold: 3
         waitDurationInOpenState: 60s
         permittedNumberOfCallsInHalfOpenState: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true

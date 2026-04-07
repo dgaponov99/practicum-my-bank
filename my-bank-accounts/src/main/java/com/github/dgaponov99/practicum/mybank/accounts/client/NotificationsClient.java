@@ -13,7 +13,7 @@ public class NotificationsClient {
 
     private final RestClient serviceRestClient;
 
-    @Value("${notifications.service.url:http://notifications-service}")
+    @Value("${notifications.service.url:http://notifications-service:8084}")
     private String baseUrl;
 
     public void sendNotification(NotificationDto notificationDto) {
