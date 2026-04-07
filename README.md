@@ -25,7 +25,7 @@
 - Запустить `docker engine`
 - Выполнить `docker-build.sh`
 - Выполнить `docker compose up -d`
-- Выполнить `helm-common-install.sh`
+- Выполнить `helm-common-install.sh` (взаимодействие с keycloak, создание ingress-nginx контроллера, поднятие kafka)
 - Выполнить `helm dependency build ./my-bank-chart/charts/backend-chart`
 - Выполнить `helm dependency build ./my-bank-chart`
 - Выполнить `helm lint ./my-bank-chart` для валидации конфигурации
@@ -68,7 +68,8 @@
     - `frontend-chart`: чарт сервиса фронденда, содержащий сам сервис и ingress для внешнего доступа из вне кластера
     - `backend-chart`: чарт сервисов бэкенда (accounts-service, transfer-service, cash-service) и их базы данных
       postgresql. K8s ресурсы сервисов созданы с помощью Range цикла так как являются типовыми. Так же содержит
-      gateway-ingress для доступа к сервисам через единый домен gateway кластера.
+      gateway-ingress для доступа к сервисам через единый домен gateway кластера и задачу создания очереди уведомлений 
+      (notifications) в kafka.
         - `notifications-chart`: чарт сервиса уведомлений, который является сабчартом общего backend-чарта
 
 ![](./my-bank-schema.jpg)
