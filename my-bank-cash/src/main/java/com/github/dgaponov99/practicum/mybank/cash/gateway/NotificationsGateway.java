@@ -30,7 +30,7 @@ public class NotificationsGateway {
                 });
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelayString = "${outbox.schedule.delay:5000}")
     protected void outboxSchedule() {
 
         var notifications = notificationOutboxRepository.findReady(Instant.now(), Pageable.ofSize(outboxProperties.getBatchSize()));
@@ -46,6 +46,8 @@ public class NotificationsGateway {
                             notification.setRetryCount(notification.getRetryCount() + 1);
                             notification.setNextRetryAt(getNextRetryAt(notification.getRetryCount()));
                             notificationOutboxRepository.save(notification);
+                        } else {
+                            notificationOutboxRepository.delete(notification);
                         }
                     });
         });
