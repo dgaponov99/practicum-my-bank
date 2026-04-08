@@ -18,6 +18,8 @@ keycloak:
   url: http://auth-local:8180
 gateway:
   service: gateway
+zipkin:
+  host: zipkin
 
 components:
   accounts-service:

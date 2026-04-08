@@ -53,3 +53,40 @@ services:
       VAULT_TOKEN: ${VAULT_TOKEN}
     entrypoint: [ "/bin/sh", "/app/vault-init.sh" ]
     restart: no
+
+  mysql:
+    image: mysql:8.0
+    container_name: zipkin-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: zipkin
+      MYSQL_USER: zipkin
+      MYSQL_PASSWORD: zipkin
+    volumes:
+      - ./zipkin/mysql:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uzipkin", "-pzipkin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    command: [ "--config=/config/zipkin.yaml" ]
+    ports:
+      - "9411:9411"
+    volumes:
+      - ./zipkin/config:/config:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:9411/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped

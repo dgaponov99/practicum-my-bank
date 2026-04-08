@@ -39,6 +39,10 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        interceptor.classes: io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor
+    template:
+      observation-enabled: true
 
 management:
   endpoints:
@@ -54,3 +58,11 @@ management:
       enabled: true
     readinessState:
       enabled: true
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST:localhost}:${ZIPKIN_PORT:9411}/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1
+    propagation:
+      type: w3c

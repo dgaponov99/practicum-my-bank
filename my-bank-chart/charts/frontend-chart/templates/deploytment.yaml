@@ -39,3 +39,5 @@ spec:
                   key: client-secret
             - name: GATEWAY_SERVICE_URL
               value: {{ .Values.gateway.service.url }}
+            - name: ZIPKIN_HOST
+              value: {{ .Values.zipkin.host }}

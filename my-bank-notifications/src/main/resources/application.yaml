@@ -2,6 +2,8 @@ server:
   port: 8084
 
 spring:
+  application:
+    name: notifications-service
   kafka:
     bootstrap-servers: localhost:9001
     consumer:
@@ -10,9 +12,12 @@ spring:
       isolation-level: read_committed
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties.spring.json.trusted.packages: com.github.dgaponov99.practicum.mybank.*
+      properties:
+        spring.json.trusted.packages: com.github.dgaponov99.practicum.mybank.*
+        interceptor.classes: io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingConsumerInterceptor
     listener:
       ack-mode: manual
+      observation-enabled: true
 
 management:
   endpoints:
@@ -28,3 +33,11 @@ management:
       enabled: true
     readinessState:
       enabled: true
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST:localhost}:${ZIPKIN_PORT:9411}/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1
+    propagation:
+      type: w3c

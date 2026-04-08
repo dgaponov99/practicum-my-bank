@@ -35,3 +35,4 @@ build/
 accounts-db
 transfer-db
 cash-db
+zipkin/mysql

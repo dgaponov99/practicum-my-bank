@@ -1,7 +1,3 @@
-outbox:
-  schedule:
-    delay: 200
-
 management:
   tracing:
     enabled: false

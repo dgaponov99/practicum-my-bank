@@ -15,7 +15,7 @@ public class NotificationEventListener {
 
     private final NotificationsGateway notificationsGateway;
 
-    @Async
+    @Async("asyncTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onEditComplete(EditAccountEvent editAccountEvent) {
         try {
@@ -25,7 +25,7 @@ public class NotificationEventListener {
         }
     }
 
-    @Async
+    @Async("asyncTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
     public void onErrorEditComplete(EditAccountEvent editAccountEvent) {
         try {
