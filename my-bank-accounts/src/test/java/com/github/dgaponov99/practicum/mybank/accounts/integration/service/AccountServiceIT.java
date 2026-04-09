@@ -1,8 +1,8 @@
 package com.github.dgaponov99.practicum.mybank.accounts.integration.service;
 
-import com.github.dgaponov99.practicum.mybank.accounts.client.NotificationsClient;
 import com.github.dgaponov99.practicum.mybank.accounts.exception.AccountNotFoundException;
 import com.github.dgaponov99.practicum.mybank.accounts.exception.InsufficientFundsException;
+import com.github.dgaponov99.practicum.mybank.accounts.gateway.NotificationsGateway;
 import com.github.dgaponov99.practicum.mybank.accounts.integration.ClearSchemaIT;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.entity.Account;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.repository.AccountRepository;
@@ -32,7 +32,7 @@ public class AccountServiceIT extends ClearSchemaIT {
     @Autowired
     NotificationOutboxRepository notificationOutboxRepository;
     @MockitoBean
-    NotificationsClient notificationsClient;
+    NotificationsGateway notificationsGateway;
 
     @BeforeEach
     void init() {
@@ -85,7 +85,7 @@ public class AccountServiceIT extends ClearSchemaIT {
 
     @Test
     public void editAccount_success() {
-        doNothing().when(notificationsClient).sendNotification(any());
+        doNothing().when(notificationsGateway).sendNotification(anyString(), anyString());
 
         var account = accountsService.editAccount("user1", new AccountDataDto("Иванов Иван1", LocalDate.parse("2000-02-01")));
         assertNotNull(account);
@@ -97,24 +97,7 @@ public class AccountServiceIT extends ClearSchemaIT {
         Awaitility.await()
                 .atMost(Duration.ofSeconds(3))
                 .untilAsserted(() ->
-                        verify(notificationsClient, times(1)).sendNotification(any())
-                );
-
-    }
-
-    @Test
-    public void editAccount_success_outbox() {
-        doThrow(RuntimeException.class).when(notificationsClient).sendNotification(any());
-
-        var account = accountsService.editAccount("user1", new AccountDataDto("Иванов Иван1", LocalDate.parse("2000-02-01")));
-        assertNotNull(account);
-
-        Awaitility.await()
-                .atMost(Duration.ofSeconds(3))
-                .untilAsserted(() -> {
-                            verify(notificationsClient, times(1)).sendNotification(any());
-                            assertEquals(1, notificationOutboxRepository.count());
-                        }
+                        verify(notificationsGateway, times(1)).sendNotification(eq("user1"), anyString())
                 );
 
     }

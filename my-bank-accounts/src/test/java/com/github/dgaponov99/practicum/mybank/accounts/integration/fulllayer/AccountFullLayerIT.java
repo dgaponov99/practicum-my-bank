@@ -1,6 +1,6 @@
 package com.github.dgaponov99.practicum.mybank.accounts.integration.fulllayer;
 
-import com.github.dgaponov99.practicum.mybank.accounts.client.NotificationsClient;
+import com.github.dgaponov99.practicum.mybank.accounts.gateway.NotificationsGateway;
 import com.github.dgaponov99.practicum.mybank.accounts.integration.ClearSchemaIT;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.entity.Account;
 import com.github.dgaponov99.practicum.mybank.accounts.persistence.repository.AccountRepository;
@@ -29,7 +29,7 @@ public class AccountFullLayerIT extends ClearSchemaIT {
     @Autowired
     AccountRepository accountRepository;
     @MockitoBean
-    NotificationsClient notificationsClient;
+    NotificationsGateway notificationsGateway;
 
     @BeforeEach
     void init() {

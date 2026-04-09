@@ -74,3 +74,12 @@ startupProbe:
     path: /actuator/health/liveness
   failureThreshold: 60
   periodSeconds: 5
+
+kafka:
+  image: kafkace/kafka:v3.7.1-63ba8d2
+  bootstrapServers: kafka-broker-0.kafka-headless.kafka.svc.cluster.local:9092
+
+topics:
+  - name: notifications
+    partitions: 5
+    replicationFactor: 3

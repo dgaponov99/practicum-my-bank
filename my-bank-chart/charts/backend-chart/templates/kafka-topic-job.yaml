@@ -1,0 +1,41 @@
+{{- range .Values.topics }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-topic-{{ .name }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kafka-topic
+          image: {{ $.Values.kafka.image }}
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Waiting for Kafka..."
+
+              until bin/kafka-topics.sh \
+                --bootstrap-server {{ $.Values.kafka.bootstrapServers }} \
+                --list; do
+                sleep 5
+              done
+
+              echo "Creating topic {{ .name }}..."
+
+              bin/kafka-topics.sh \
+                --create \
+                --if-not-exists \
+                --topic {{ .name }} \
+                --bootstrap-server {{ $.Values.kafka.bootstrapServers }} \
+                --partitions {{ .partitions }} \
+                --replication-factor {{ .replicationFactor }}
+
+              echo "Done"
+{{- end }}

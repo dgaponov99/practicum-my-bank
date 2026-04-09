@@ -1,10 +1,10 @@
 package com.github.dgaponov99.practicum.mybank.transfer.integration.fulllayer;
 
 import com.github.dgaponov99.practicum.mybank.transfer.client.AccountServiceClient;
-import com.github.dgaponov99.practicum.mybank.transfer.client.NotificationsClient;
 import com.github.dgaponov99.practicum.mybank.transfer.dto.AccountDto;
 import com.github.dgaponov99.practicum.mybank.transfer.dto.TransferDto;
 import com.github.dgaponov99.practicum.mybank.transfer.exception.ExternalMultipleException;
+import com.github.dgaponov99.practicum.mybank.transfer.gateway.NotificationsGateway;
 import com.github.dgaponov99.practicum.mybank.transfer.integration.PostreSQLTestcontainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class TransferFullLayerIT {
     @Autowired
     MockMvc mockMvc;
     @MockitoBean
-    NotificationsClient notificationsClient;
+    NotificationsGateway notificationsGateway;
     @MockitoBean
     AccountServiceClient accountServiceClient;
 
@@ -60,7 +60,7 @@ public class TransferFullLayerIT {
     @Test
     @WithMockUser(authorities = {"ROLE_USER", "transfer.write"}, username = "user1")
     public void transfer_success() throws Exception {
-        doNothing().when(notificationsClient).sendNotification(any());
+        doNothing().when(notificationsGateway).sendNotification(anyString(), anyString());
         doNothing().when(accountServiceClient).transfer(any());
 
         mockMvc.perform(post("/")
@@ -75,13 +75,13 @@ public class TransferFullLayerIT {
                 .andExpect(status().isOk());
 
         verify(accountServiceClient, times(1)).transfer(new TransferDto("user1", "user2", 100));
-        verify(notificationsClient, times(2)).sendNotification(any());
+        verify(notificationsGateway, times(2)).sendNotification(anyString(), anyString());
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_USER", "transfer.write"}, username = "user1")
     public void transfer_badRequest() throws Exception {
-        doNothing().when(notificationsClient).sendNotification(any());
+        doNothing().when(notificationsGateway).sendNotification(anyString(), anyString());
         doThrow(new ExternalMultipleException("На счету не достаточно средств для списания")).when(accountServiceClient).transfer(any());
 
         mockMvc.perform(post("/")

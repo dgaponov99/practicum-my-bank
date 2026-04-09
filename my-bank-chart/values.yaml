@@ -24,8 +24,3 @@ tests:
     method: POST
     url: /withdraw
     expectCode: 401
-  notifications-service:
-    port: 8084
-    method: POST
-    url: /
-    expectCode: 401

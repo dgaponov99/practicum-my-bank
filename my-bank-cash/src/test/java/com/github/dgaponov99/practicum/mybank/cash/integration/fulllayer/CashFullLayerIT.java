@@ -1,9 +1,9 @@
 package com.github.dgaponov99.practicum.mybank.cash.integration.fulllayer;
 
 import com.github.dgaponov99.practicum.mybank.cash.client.AccountServiceClient;
-import com.github.dgaponov99.practicum.mybank.cash.client.NotificationsClient;
 import com.github.dgaponov99.practicum.mybank.cash.dto.AccountDto;
 import com.github.dgaponov99.practicum.mybank.cash.exception.ExternalMultipleException;
+import com.github.dgaponov99.practicum.mybank.cash.gateway.NotificationsGateway;
 import com.github.dgaponov99.practicum.mybank.cash.integration.PostreSQLTestcontainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,14 +33,14 @@ public class CashFullLayerIT {
     @Autowired
     MockMvc mockMvc;
     @MockitoBean
-    NotificationsClient notificationsClient;
+    NotificationsGateway notificationsGateway;
     @MockitoBean
     AccountServiceClient accountServiceClient;
 
     @Test
     @WithMockUser(authorities = {"ROLE_USER", "cash.write"}, username = "user1")
     public void withdraw_success() throws Exception {
-        doNothing().when(notificationsClient).sendNotification(any());
+        doNothing().when(notificationsGateway).sendNotification(anyString(), anyString());
         when(accountServiceClient.debit(anyString(), anyInt())).thenReturn(new AccountDto("user1", "Иванов Иван", LocalDate.parse("2000-01-01")));
 
         mockMvc.perform(post("/withdraw")
@@ -55,13 +54,13 @@ public class CashFullLayerIT {
                 .andExpect(status().isOk());
 
         verify(accountServiceClient, times(1)).debit("user1", 100);
-        verify(notificationsClient, times(1)).sendNotification(any());
+        verify(notificationsGateway, times(1)).sendNotification(eq("user1"), anyString());
     }
 
     @Test
     @WithMockUser(authorities = {"ROLE_USER", "cash.write"}, username = "user1")
     public void withdraw_badRequest() throws Exception {
-        doNothing().when(notificationsClient).sendNotification(any());
+        doNothing().when(notificationsGateway).sendNotification(anyString(), anyString());
         when(accountServiceClient.debit(anyString(), anyInt())).thenThrow(new ExternalMultipleException("На счету не достаточно средств для списания"));
 
         mockMvc.perform(post("/withdraw")
@@ -82,7 +81,7 @@ public class CashFullLayerIT {
     @Test
     @WithMockUser(authorities = {"ROLE_USER", "cash.write"}, username = "user1")
     public void deposit_success() throws Exception {
-        doNothing().when(notificationsClient).sendNotification(any());
+        doNothing().when(notificationsGateway).sendNotification(anyString(), anyString());
         when(accountServiceClient.debit(anyString(), anyInt())).thenReturn(new AccountDto("user1", "Иванов Иван", LocalDate.parse("2000-01-01")));
 
         mockMvc.perform(post("/deposit")
@@ -96,7 +95,7 @@ public class CashFullLayerIT {
                 .andExpect(status().isOk());
 
         verify(accountServiceClient, times(1)).credit("user1", 100);
-        verify(notificationsClient, times(1)).sendNotification(any());
+        verify(notificationsGateway, times(1)).sendNotification(eq("user1"), anyString());
     }
 
 }
