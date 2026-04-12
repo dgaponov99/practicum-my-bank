@@ -31,6 +31,9 @@ public class AccountsGateway {
                             return null;
                         },
                         e -> {
+                            if (e instanceof ExternalMultipleException externalMultipleException) {
+                                throw externalMultipleException;
+                            }
                             throw new ExternalMultipleException("Сервис временно не доступен");
                         });
     }

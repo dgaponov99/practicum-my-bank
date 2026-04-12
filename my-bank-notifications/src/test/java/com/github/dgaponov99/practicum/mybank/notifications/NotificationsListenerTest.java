@@ -2,6 +2,7 @@ package com.github.dgaponov99.practicum.mybank.notifications;
 
 import com.github.dgaponov99.practicum.mybank.dto.NotificationDto;
 import com.github.dgaponov99.practicum.mybank.notifications.listener.NotificationsListener;
+import com.github.dgaponov99.practicum.mybank.notifications.service.NotificationsService;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -25,6 +26,7 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.Duration;
@@ -42,6 +44,8 @@ import static org.mockito.Mockito.*;
 @EmbeddedKafka(topics = "notifications")
 public class NotificationsListenerTest {
 
+    @MockitoBean
+    NotificationsService notificationsService;
     @MockitoSpyBean
     NotificationsListener notificationsListener;
     @Captor
@@ -59,6 +63,8 @@ public class NotificationsListenerTest {
     void setUp() {
         consumer = consumerFactory.createConsumer();
         embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, "notifications");
+
+        doNothing().when(notificationsService).sendNotification(any());
     }
 
     @Test

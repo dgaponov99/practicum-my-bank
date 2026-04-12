@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dgaponov99.practicum.mybank.cash.dto.ErrorDto;
 import com.github.dgaponov99.practicum.mybank.cash.exception.ExternalMultipleException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,9 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.web.client.RestClient;
 
+import java.nio.charset.StandardCharsets;
+
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class RestClientInterceptorConfig {

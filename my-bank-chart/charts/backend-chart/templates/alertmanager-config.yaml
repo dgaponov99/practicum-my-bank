@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: webhook-site-config
+  namespace: monitoring
+  labels:
+    release: prometheus-stack
+spec:
+  route:
+    receiver: webhook-test
+    groupBy:
+      - alertname
+    groupWait: 5s
+    groupInterval: 10s
+    repeatInterval: 30s
+
+  receivers:
+    - name: webhook-test
+      webhookConfigs:
+        - sendResolved: true
+          url: https://webhook.site/9006e1fc-5327-438d-a4e9-d30563276b7c

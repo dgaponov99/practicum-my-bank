@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: notification-failures-alert
+  namespace: monitoring
+  labels:
+    release: prometheus-stack
+spec:
+  groups:
+    - name: notifications.rules
+      rules:
+        - alert: HighNotificationFailureRate
+          expr: sum(increase(notification_failed_total[3m])) > 5
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Слишком много ошибок отправки уведомлений"
+            description: "За последние 3 минуты произошло более 5 ошибок отправки уведомлений."
