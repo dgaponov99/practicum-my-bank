@@ -7,6 +7,8 @@ external:
       host: auth-local
     zipkin:
       host: zipkin
+    logstash:
+      host: logstash
 
 tests:
   frontend-service:

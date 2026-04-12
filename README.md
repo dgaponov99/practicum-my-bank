@@ -45,6 +45,9 @@
   - Алерты:
     - Бизнес: алерт превышения допустимого количество ошибок при отправке уведомлений
     - Инфраструктурные: недоступность сервисов и пороговое значение HEAP-памяти
+- Логи:
+  - Логи приложений отправляются в ЕЛК, развернутый вне k8s кластера через logback appender в виде json.
+  - Просмотреть логи можно в интерфейсе kibana по адресу http://localhost:5601, так же доступен дашборд для просмотра соотношения и количества логов по сервисам (находится в ./kibana/dashboard.ndjson)
 
 <details>
 <summary>Скриншоты</summary>
@@ -55,6 +58,7 @@
 ![](./scrinshots/grafana-spring.png)
 ![](./scrinshots/grafana-http.png)
 ![](./scrinshots/grafana-business.png)
+![](./scrinshots/kibana-dashboard.png)
 </details>
 
 ### Тестовые пользователи (login / pass):

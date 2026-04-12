@@ -5,6 +5,7 @@ import com.github.dgaponov99.practicum.mybank.transfer.dto.AccountDto;
 import com.github.dgaponov99.practicum.mybank.transfer.dto.TransferDto;
 import com.github.dgaponov99.practicum.mybank.transfer.exception.ExternalMultipleException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AccountsGateway {
@@ -31,6 +33,7 @@ public class AccountsGateway {
                             return null;
                         },
                         e -> {
+                            log.debug("Запрос во внешний сервис для перевода не успешен");
                             if (e instanceof ExternalMultipleException externalMultipleException) {
                                 throw externalMultipleException;
                             }

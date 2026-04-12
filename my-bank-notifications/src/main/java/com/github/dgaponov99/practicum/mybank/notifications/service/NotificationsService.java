@@ -20,6 +20,7 @@ public class NotificationsService {
     private final MeterRegistry meterRegistry;
 
     public void sendNotification(NotificationDto notificationDto) {
+        log.debug("Уведомление пользователю {}", notificationDto.username());
         var traceId = tracer.currentTraceContext().context().traceId();
         if (!Boolean.TRUE.equals(traceIdCache.getIfPresent(traceId))) {
             if (ThreadLocalRandom.current().nextInt(3) == 0) {

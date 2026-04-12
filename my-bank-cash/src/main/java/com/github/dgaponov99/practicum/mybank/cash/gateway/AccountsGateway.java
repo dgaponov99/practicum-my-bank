@@ -21,6 +21,10 @@ public class AccountsGateway {
         return getCircuitBreaker()
                 .run(() -> accountServiceClient.credit(username, amount),
                         e -> {
+                            log.debug("Запрос во внешний сервис для пополнения счета не успешен");
+                            if (e instanceof ExternalMultipleException externalMultipleException) {
+                                throw externalMultipleException;
+                            }
                             throw new ExternalMultipleException("Сервис временно не доступен");
                         });
     }
@@ -29,6 +33,7 @@ public class AccountsGateway {
         return getCircuitBreaker()
                 .run(() -> accountServiceClient.debit(username, amount),
                         e -> {
+                            log.debug("Запрос во внешний сервис для снятия денег со счета не успешен");
                             if (e instanceof ExternalMultipleException externalMultipleException) {
                                 throw externalMultipleException;
                             }

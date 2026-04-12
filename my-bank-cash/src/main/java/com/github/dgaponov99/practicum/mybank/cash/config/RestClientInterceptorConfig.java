@@ -50,6 +50,7 @@ public class RestClientInterceptorConfig {
     @Bean
     public RestClient.ResponseSpec.ErrorHandler externalErrorHandler() {
         return (req, res) -> {
+            log.debug("Ошибка выполнения запроса к внешнему сервису");
             try (var bodyIS = res.getBody()) {
                 var errorDto = objectMapper.readValue(bodyIS, ErrorDto.class);
                 throw new ExternalMultipleException(errorDto.errors());

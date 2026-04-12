@@ -19,6 +19,7 @@ public class NotificationEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onEditComplete(EditAccountEvent editAccountEvent) {
         try {
+            log.debug("Отправка уведомления пользователю [успешное редактирование]: {}", editAccountEvent.username());
             notificationsGateway.sendNotification(editAccountEvent.username(), "Счет пользователя успешно отредактирован");
         } catch (Exception e) {
             log.warn("Ошибка отправки уведомления: {}", e.getMessage(), e);
@@ -29,6 +30,7 @@ public class NotificationEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
     public void onErrorEditComplete(EditAccountEvent editAccountEvent) {
         try {
+            log.debug("Отправка уведомления пользователю [неуспешное редактирование]: {}", editAccountEvent.username());
             notificationsGateway.sendNotification(editAccountEvent.username(), "Ошибка редактирования счета пользователя");
         } catch (Exception e) {
             log.warn("Ошибка отправки уведомления: {}", e.getMessage(), e);
