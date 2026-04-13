@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: {{ $name }}
+        logging: enabled
     spec:
       containers:
         - name: {{ $name }}

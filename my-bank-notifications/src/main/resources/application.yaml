@@ -49,3 +49,11 @@ management:
       probability: 1
     propagation:
       type: w3c
+
+logging:
+  structured:
+    format:
+      console: ecs
+    ecs:
+      service:
+        name: ${spring.application.name}

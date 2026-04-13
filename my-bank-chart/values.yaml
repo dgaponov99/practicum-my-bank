@@ -9,6 +9,8 @@ external:
       host: zipkin
     logstash:
       host: logstash
+    kafka-local:
+      host: broker-0-kafka-local
 
 tests:
   frontend-service:

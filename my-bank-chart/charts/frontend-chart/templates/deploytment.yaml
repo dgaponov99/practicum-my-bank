@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: {{ .Chart.Name }}
+        logging: enabled
     spec:
       containers:
         - name: {{ .Chart.Name }}

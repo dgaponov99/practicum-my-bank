@@ -14,3 +14,6 @@ helm install kafka kafka-repo/kafka -n kafka --create-namespace --set broker.com
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f ./prometheus/values.yaml
+
+helm repo add fluent https://fluent.github.io/helm-charts
+helm repo update
