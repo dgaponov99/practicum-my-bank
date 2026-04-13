@@ -30,9 +30,7 @@ public class KafkaConfig {
     public CommonErrorHandler errorHandler() {
         var recoverer = (ConsumerRecordRecoverer) (record, e) -> {
             if (record.topic().equals("notifications")) {
-                meterRegistry.counter("notification_failed",
-                                "username", (String) record.key())
-                        .increment();
+                meterRegistry.counter("notification_failed").increment();
             }
             log.error("Error occurred while processing record {}", record, e);
         };

@@ -25,7 +25,7 @@ public class CashService {
             log.info("Снятие наличных со счета {} успешно", username);
         } catch (RuntimeException e) {
             log.warn("Снятие наличных со счета {} неуспешно", username);
-            meterRegistry.counter("cash_withdraw_failed", "username", username).increment();
+            meterRegistry.counter("cash_withdraw_failed").increment();
             throw e;
         }
     }
@@ -39,7 +39,7 @@ public class CashService {
             log.info("Пополнение наличными счета успешно {} ", username);
         } catch (RuntimeException e) {
             log.warn("Пополнение наличными счета {} неуспешно", username);
-            meterRegistry.counter("cash_deposit_failed", "username", username).increment();
+            meterRegistry.counter("cash_deposit_failed").increment();
             throw e;
         }
     }

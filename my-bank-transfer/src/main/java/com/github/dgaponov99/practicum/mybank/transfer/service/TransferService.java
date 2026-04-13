@@ -38,10 +38,7 @@ public class TransferService {
             log.info("Запрос перевода от пользователя {} пользователю {} прошел успешно", transferDto.fromUsername(), transferDto.toUsername());
         } catch (RuntimeException e) {
             log.warn("Запрос перевода от пользователя {} пользователю {} завершился с ошибкой", transferDto.fromUsername(), transferDto.toUsername());
-            meterRegistry.counter("transfer_failed",
-                            "fromUsername", transferDto.fromUsername(),
-                            "toUsername", transferDto.toUsername())
-                    .increment();
+            meterRegistry.counter("transfer_failed").increment();
             throw e;
         }
     }
