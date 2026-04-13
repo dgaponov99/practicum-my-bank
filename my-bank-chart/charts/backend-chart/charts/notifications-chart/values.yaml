@@ -6,6 +6,9 @@ service:
   port: 8084
   type: ClusterIP
 
+zipkin:
+  host: zipkin
+
 livenessProbe:
   httpGet:
     path: /actuator/health/liveness

@@ -1,0 +1,13 @@
+zipkin:
+  collector:
+    http:
+      enabled: true
+
+storage:
+  type: mysql
+  mysql:
+    host: mysql
+    port: 3306
+    db: zipkin
+    user: zipkin
+    password: zipkin

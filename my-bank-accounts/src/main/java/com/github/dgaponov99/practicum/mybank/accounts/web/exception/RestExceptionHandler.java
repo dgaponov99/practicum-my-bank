@@ -7,6 +7,7 @@ import com.github.dgaponov99.practicum.mybank.accounts.exception.NotValidExcepti
 import com.github.dgaponov99.practicum.mybank.accounts.web.dto.ErrorDto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
+@Slf4j
 @RestControllerAdvice
 public class RestExceptionHandler {
 
@@ -28,6 +30,7 @@ public class RestExceptionHandler {
      */
     @ExceptionHandler(exception = ConstraintViolationException.class)
     public ResponseEntity<ErrorDto> handleException(ConstraintViolationException exception) {
+        log.debug("Данные не прошли проверку валидации");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorDto(exception.getConstraintViolations().stream()
                         .map(ConstraintViolation::getMessage)
@@ -43,6 +46,7 @@ public class RestExceptionHandler {
      */
     @ExceptionHandler(exception = MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDto> handleException(MethodArgumentNotValidException exception) {
+        log.debug("Запрос не прошел проверку валидации");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorDto(exception.getBindingResult().getAllErrors().stream()
                         .map(ObjectError::getDefaultMessage)

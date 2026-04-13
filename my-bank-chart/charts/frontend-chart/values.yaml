@@ -12,6 +12,8 @@ keycloak:
 gateway:
   service:
     url: http://gateway:80
+zipkin:
+  host: zipkin
 
 livenessProbe:
   httpGet:

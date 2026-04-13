@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: {{ $name }}
+        logging: enabled
     spec:
       containers:
         - name: {{ $name }}
@@ -50,5 +51,7 @@ spec:
               value: {{ $.Values.keycloak.url }}
             - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
               value: {{ $.Values.kafka.bootstrapServers }}
+            - name: ZIPKIN_HOST
+              value: {{ $.Values.zipkin.host }}
 ---
 {{- end }}

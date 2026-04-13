@@ -1,0 +1,135 @@
+image:
+  repository: fluent/fluent-bit
+  tag: 5.0.2
+
+kind: DaemonSet
+
+serviceAccount:
+  create: true
+  name: fluent-bit
+
+rbac:
+  create: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 300Mi
+
+tolerations:
+  - operator: Exists
+
+config:
+  service: |
+    [SERVICE]
+        Flush           1
+        Daemon          Off
+        Log_Level       info
+        Parsers_File    parsers.conf
+        HTTP_Server     On
+        HTTP_Listen     0.0.0.0
+        HTTP_Port       2020
+
+  inputs: |
+    [INPUT]
+        Name                tail
+        Path                /var/log/containers/*.log
+        Exclude_Path        /var/log/containers/fluent-bit*.log
+        Parser              cri
+        Tag                 kube.*
+        Refresh_Interval    5
+        Rotate_Wait         30
+        Mem_Buf_Limit       50MB
+        Skip_Long_Lines     On
+        DB                  /var/log/fluentbit/flb_kube.db
+        DB.Sync             Normal
+
+  filters: |
+    [FILTER]
+        Name                    kubernetes
+        Match                   kube.*
+        Merge_Log               On
+        Keep_Log                Off
+        K8S-Logging.Parser      On
+        K8S-Logging.Exclude     Off
+        Labels                  On
+        Annotations             Off
+
+    [FILTER]
+        Name                    parser
+        Match                   kube.*
+        Key_Name                message
+        Parser                  json
+        Reserve_Data            On
+
+    [FILTER]
+        Name                    grep
+        Match                   kube.*
+        Regex                   $kubernetes['labels']['logging'] enabled
+
+    [FILTER]
+        Name                    modify
+        Match                   kube.*
+        Remove                  stream
+        Remove                  logtag
+        Remove                  time
+
+  outputs: |
+    [OUTPUT]
+        Name                    kafka
+        Match                   kube.*
+        Brokers                 broker-0-kafka-local:9092
+        Topics                  app-logs
+        Format                  json_lines
+        Retry_Limit             False
+        rdkafka.request.required.acks 1
+        rdkafka.log.connection.close false
+        rdkafka.message.send.max.retries 10
+        rdkafka.queue.buffering.max.ms 100
+
+  parsers: |
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    @timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+
+    [PARSER]
+        Name        json
+        Format      json
+
+daemonSetVolumes:
+  - name: varlog
+    hostPath:
+      path: /var/log
+
+  - name: containers
+    hostPath:
+      path: /var/lib/docker/containers
+
+  - name: fluentbit-db
+    hostPath:
+      path: /var/log/fluentbit
+
+daemonSetVolumeMounts:
+  - name: varlog
+    mountPath: /var/log
+
+  - name: containers
+    mountPath: /var/lib/docker/containers
+    readOnly: true
+
+  - name: fluentbit-db
+    mountPath: /var/log/fluentbit
+
+metrics:
+  enabled: true
+  service:
+    port: 2020
+
+podMonitor:
+  enabled: true
+  labels:
+    release: prometheus-stack

@@ -10,3 +10,10 @@ helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx
 helm repo add kafka-repo https://helm-charts.itboon.top/kafka
 helm repo update
 helm install kafka kafka-repo/kafka -n kafka --create-namespace --set broker.combinedMode.enabled=true --set broker.replicaCount=3 --set broker.config.min.insync.replicas=2
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f ./prometheus/values.yaml
+
+helm repo add fluent https://fluent.github.io/helm-charts
+helm repo update

@@ -1,0 +1,38 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: infrastructure-alerts
+  namespace: monitoring
+  labels:
+    release: prometheus-stack
+spec:
+  groups:
+    - name: infrastructure.rules
+      rules:
+
+        - alert: ServiceDown
+          expr: up{job=~".*service.*"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Сервис недоступен"
+            description: "Сервис {{ `{{ $labels.job }}` }} недоступен более 1 минуты."
+
+        - alert: HighHeapMemoryUsage
+          expr: |
+            (
+              sum by(application)(
+                jvm_memory_used_bytes{area="heap"}
+              )
+              /
+              sum by(application)(
+                jvm_memory_max_bytes{area="heap"}
+              )
+            ) * 100 > 85
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Заканчивается heap memory"
+            description: "Heap usage у сервиса {{ `{{ $labels.application }}` }} превышает 85% более 2 минут."

@@ -27,7 +27,10 @@ public class NotificationsGateway {
         kafkaTemplate.send("notifications", notificationDto.username(), notificationDto)
                 .whenComplete((notification, throwable) -> {
                     if (throwable != null) {
+                        log.debug("Не удалось отправить уведомление {}, запись в outbox", notification);
                         saveOutbox(notificationDto);
+                    } else {
+                        log.debug("Уведомление успешно отправлено");
                     }
                 });
     }
@@ -41,6 +44,7 @@ public class NotificationsGateway {
         }
 
         notifications.forEach(notification -> {
+            log.debug("Отправка уведомления пользователю {} из outbox", notification.getPayload().username());
             var notificationDto = notification.getPayload();
             kafkaTemplate.send("notifications", notificationDto.username(), notificationDto)
                     .whenComplete((result, e) -> {
@@ -48,8 +52,10 @@ public class NotificationsGateway {
                             notification.setRetryCount(notification.getRetryCount() + 1);
                             notification.setNextRetryAt(getNextRetryAt(notification.getRetryCount()));
                             notificationOutboxRepository.save(notification);
+                            log.warn("Ошибка ретрая уведомления пользователю {}", notification.getPayload().username());
                         } else {
                             notificationOutboxRepository.delete(notification);
+                            log.debug("Уведомление из outbox успешно отправлено и удалено из таблицы");
                         }
                     });
         });

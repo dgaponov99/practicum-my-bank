@@ -1,14 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "notifications-chart.name" . }}
+  name: {{ .Chart.Name }}
   labels:
-    {{ include "notifications-chart.labels" . | nindent 4 }}
+    app: {{ .Chart.Name }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - name: http
+      port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
       protocol: TCP
   selector:
-    {{ include "notifications-chart.selectorLabels" . | nindent 4 }}
+    app: {{ .Chart.Name }}
